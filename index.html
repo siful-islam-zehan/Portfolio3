@@ -1,180 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siful Islam Zehan — UI/UX Designer & Full Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0e0e0e;--gray-dark:#2a2a2a;--gray-mid:#5a5a5a;
+  --gray-light:#b0b0b0;--gray-faint:#f5f5f3;--gray-border:#e8e8e4;--white:#fff;
+  --accent-warm:#c9a96e;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --radius:6px;--radius-md:14px;--radius-lg:22px;--radius-xl:40px;
+  --shadow:0 4px 24px rgba(0,0,0,.06);--shadow-card:0 2px 16px rgba(0,0,0,.05);
+  --t:0.35s cubic-bezier(.25,.46,.45,.94);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--white);color:var(--black);font-size:16px;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray-border)}
+.nav-logo{font-family:var(--font-display);font-size:1.25rem;color:var(--black);text-decoration:none;letter-spacing:-.02em}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{font-size:.875rem;color:var(--gray-mid);text-decoration:none;transition:color var(--t)}
+.nav-links a:hover{color:var(--black)}
+.nav-cta{background:var(--black)!important;color:var(--white)!important;padding:.5rem 1.25rem;border-radius:var(--radius-xl);font-size:.8rem!important;font-weight:500!important;transition:all var(--t)!important}
+.nav-cta:hover{background:var(--gray-dark)!important;transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;padding:70px 5% 0;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4rem;max-width:1300px;margin:0 auto}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;font-size:.8rem;font-weight:500;color:var(--gray-mid);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5rem}
+.hero-tag::before{content:'';width:28px;height:1px;background:var(--gray-mid);display:block}
+.hero h1{font-family:var(--font-display);font-size:clamp(3rem,6vw,5rem);font-weight:600;line-height:1.08;letter-spacing:-.03em;margin-bottom:1.5rem}
+.hero h1 em{font-style:italic;color:var(--gray-mid);font-weight:400}
+.hero-desc{font-size:1.05rem;color:var(--gray-mid);max-width:480px;line-height:1.75;margin-bottom:2.5rem;font-weight:300}
+.hero-btns{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.btn-primary{background:var(--black);color:var(--white);border:none;padding:.9rem 2rem;border-radius:var(--radius-xl);font-family:var(--font-body);font-size:.9rem;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all var(--t)}
+.btn-primary:hover{background:#2a2a2a;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.btn-outline{background:transparent;color:var(--black);border:1.5px solid var(--gray-border);padding:.875rem 1.75rem;border-radius:var(--radius-xl);font-family:var(--font-body);font-size:.9rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;transition:all var(--t)}
+.btn-outline:hover{border-color:var(--black);transform:translateY(-2px)}
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
+.hero-img-wrap{position:relative;width:420px;height:520px}
+.hero-img-bg{position:absolute;inset:0;background:var(--gray-faint);border-radius:var(--radius-lg);border:1px solid var(--gray-border)}
+.hero-img-inner{position:absolute;top:24px;left:24px;right:24px;bottom:0;background:#0e0e0e;border-radius:14px 14px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-img-inner img{width:100%;height:100%;object-fit:cover;object-position:center 15%}
+.hero-img-label{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-xl);padding:.6rem 1.2rem;font-size:.8rem;font-weight:500;white-space:nowrap;box-shadow:var(--shadow);display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.hero-stats{position:absolute;bottom:60px;right:-30px;background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-md);padding:1rem 1.25rem;box-shadow:var(--shadow);min-width:140px}
+.hero-stats-num{font-family:var(--font-display);font-size:1.75rem;font-weight:600;color:var(--black);line-height:1;margin-bottom:4px}
+.hero-stats-label{font-size:.75rem;color:var(--gray-light)}
+.hero-badge{position:absolute;top:30px;left:-20px;background:var(--black);color:var(--white);border-radius:var(--radius-md);padding:.75rem 1rem;font-size:.75rem;font-weight:500}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--black);padding:18px 0;overflow:hidden}
+.marquee-track{display:flex;gap:3rem;animation:marquee 28s linear infinite;width:max-content}
+.marquee-item{font-size:.8rem;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:1.5rem}
+.marquee-item::after{content:'·';color:rgba(255,255,255,.2);font-size:1.2rem}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{padding:100px 5%;max-width:1300px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-light);margin-bottom:1rem;display:flex;align-items:center;gap:.75rem}
+.section-label::after{content:'';height:1px;width:40px;background:var(--gray-border);display:block}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:600;line-height:1.15;letter-spacing:-.025em;color:var(--black);margin-bottom:1.25rem}
+.section-title em{font-style:italic;color:var(--gray-mid);font-weight:400}
+.section-desc{font-size:1rem;color:var(--gray-mid);max-width:560px;line-height:1.75;font-weight:300}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.about-quote{font-family:var(--font-display);font-size:clamp(1.3rem,2.5vw,1.7rem);font-weight:400;font-style:italic;line-height:1.5;color:var(--gray-dark);margin-top:2rem;padding-left:1.5rem;border-left:2px solid var(--black)}
+.about-right{display:flex;flex-direction:column;gap:1.5rem}
+.about-stat{padding:1.25rem 1.5rem;background:var(--gray-faint);border-radius:var(--radius-md);border:1px solid var(--gray-border)}
+.about-stat-num{font-family:var(--font-display);font-size:2.5rem;font-weight:600;line-height:1;margin-bottom:4px}
+.about-stat-label{font-size:.85rem;color:var(--gray-mid);font-weight:300}
+.about-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}
+.pill{padding:.4rem 1rem;border-radius:var(--radius-xl);border:1px solid var(--gray-border);font-size:.8rem;color:var(--gray-mid)}
+
+/* SERVICES */
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3.5rem}
+.service-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-lg);padding:2rem 1.75rem;transition:all var(--t);cursor:default;position:relative;overflow:hidden}
+.service-card::before{content:'';position:absolute;inset:0;background:var(--black);transform:scaleY(0);transform-origin:bottom;transition:transform var(--t);z-index:0}
+.service-card:hover{border-color:var(--black);transform:translateY(-4px)}
+.service-card:hover::before{transform:scaleY(1)}
+.service-card:hover .service-icon,.service-card:hover .service-title,.service-card:hover .service-desc{color:var(--white);position:relative;z-index:1}
+.service-icon{font-size:1.6rem;margin-bottom:1.25rem;display:block;position:relative;z-index:1;transition:color var(--t)}
+.service-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;color:var(--black);margin-bottom:.75rem;line-height:1.3;position:relative;z-index:1;transition:color var(--t)}
+.service-desc{font-size:.875rem;color:var(--gray-mid);line-height:1.65;font-weight:300;position:relative;z-index:1;transition:color var(--t)}
+
+/* SKILLS */
+.skills-section{background:var(--gray-faint);border-radius:var(--radius-xl);padding:80px 5%;margin:0 5%;max-width:unset}
+.skills-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-top:3.5rem}
+.skills-group-title{font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-light);margin-bottom:1.25rem}
+.skills-tags{display:flex;flex-direction:column;gap:.6rem}
+.skill-tag{padding:.6rem 1rem;background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius);font-size:.875rem;color:var(--gray-dark);transition:all var(--t)}
+.skill-tag:hover{border-color:var(--black);color:var(--black);transform:translateX(4px)}
+
+/* PROJECTS */
+.projects-layout{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;margin-top:3.5rem}
+.projects-list{position:sticky;top:90px}
+.project-item{border-bottom:1px solid var(--gray-border);padding:1.75rem 0;cursor:pointer;transition:all var(--t);position:relative}
+.project-item::after{content:'→';position:absolute;right:0;top:50%;transform:translateY(-50%) translateX(10px);opacity:0;font-size:1.1rem;transition:all var(--t)}
+.project-item:hover,.project-item.active{padding-left:12px}
+.project-item:hover::after,.project-item.active::after{opacity:1;transform:translateY(-50%) translateX(0)}
+.project-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--black)}
+.project-num{font-size:.7rem;color:var(--gray-light);font-weight:500;margin-bottom:.5rem;letter-spacing:.06em}
+.project-name{font-family:var(--font-display);font-size:1.35rem;font-weight:600;color:var(--black);margin-bottom:.35rem;letter-spacing:-.02em}
+.project-tagline{font-size:.85rem;color:var(--gray-mid);font-weight:300}
+.project-preview{position:sticky;top:90px}
+.preview-card{background:var(--gray-faint);border:1px solid var(--gray-border);border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:4/3;position:relative;transition:all var(--t)}
+.preview-mockup{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;transition:all var(--t)}
+.preview-banner{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.preview-icon{font-size:3rem;opacity:.15}
+.preview-label{font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:var(--black);opacity:.2;letter-spacing:-.03em;text-align:center;padding:0 2rem}
+.preview-meta{padding:1.25rem 1.5rem;border-top:1px solid var(--gray-border);background:var(--white);display:flex;justify-content:space-between;align-items:center}
+.preview-meta-title{font-weight:500;font-size:.9rem}
+.preview-meta-tag{font-size:.75rem;color:var(--gray-mid)}
+.preview-btn{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:500;color:var(--black);text-decoration:none;padding:.5rem 1rem;border:1px solid var(--gray-border);border-radius:var(--radius-xl);background:none;cursor:pointer;transition:all var(--t)}
+.preview-btn:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+
+/* EXPERIENCE & EDUCATION TIMELINE */
+.timeline-section{padding:100px 5% 0;max-width:1300px;margin:0 auto}
+.timeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-top:3.5rem}
+.timeline-list{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:grid;grid-template-columns:20px 1fr;gap:1.25rem;position:relative;padding-bottom:2rem}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--black);border:2px solid var(--black);flex-shrink:0}
+.timeline-line{width:1px;background:var(--gray-border);flex:1;margin-top:6px}
+.timeline-item:last-child .timeline-line{display:none}
+.timeline-content{}
+.timeline-period{font-size:.72rem;font-weight:500;letter-spacing:.06em;color:var(--gray-light);text-transform:uppercase;margin-bottom:.4rem}
+.timeline-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;color:var(--black);margin-bottom:.2rem}
+.timeline-subtitle{font-size:.875rem;color:var(--gray-mid);font-weight:400;margin-bottom:.5rem}
+.timeline-badge{display:inline-block;padding:.2rem .65rem;background:var(--gray-faint);border:1px solid var(--gray-border);border-radius:20px;font-size:.7rem;color:var(--gray-mid);font-weight:500;margin-bottom:.5rem}
+.timeline-desc{font-size:.82rem;color:var(--gray-mid);line-height:1.65;font-weight:300}
+.timeline-empty{font-size:.875rem;color:var(--gray-light);font-style:italic;padding:1rem 0}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;padding:2rem;backdrop-filter:blur(8px)}
+.modal-overlay.open{display:flex;animation:mOverIn .3s ease}
+@keyframes mOverIn{from{opacity:0}to{opacity:1}}
+.modal-card{background:var(--white);border-radius:var(--radius-xl);max-width:800px;width:100%;max-height:90vh;overflow-y:auto;animation:mCardIn .35s cubic-bezier(.25,.46,.45,.94)}
+@keyframes mCardIn{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.modal-visual{width:100%;aspect-ratio:16/9;background:var(--gray-faint);border-radius:var(--radius-xl) var(--radius-xl) 0 0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;position:relative;overflow:hidden}
+.modal-full-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.modal-icon-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;z-index:1}
+.modal-visual-icon{font-size:4rem;opacity:.12}
+.modal-visual-label{font-family:var(--font-display);font-size:2.5rem;font-weight:600;color:var(--black);opacity:.1;letter-spacing:-.04em}
+.modal-close{position:absolute;top:1.25rem;right:1.25rem;width:40px;height:40px;background:rgba(0,0,0,.4);border:none;border-radius:50%;color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:10}
+.modal-close:hover{background:rgba(0,0,0,.7)}
+.modal-body{padding:2.5rem}
+.modal-tag-pill{display:inline-block;padding:.35rem .9rem;background:var(--gray-faint);border:1px solid var(--gray-border);border-radius:var(--radius-xl);font-size:.75rem;color:var(--gray-mid);font-weight:500;margin-bottom:1rem;letter-spacing:.04em}
+.modal-title-text{font-family:var(--font-display);font-size:2rem;font-weight:600;color:var(--black);letter-spacing:-.03em;margin-bottom:1rem;line-height:1.2}
+.modal-desc-text{font-size:.95rem;color:var(--gray-mid);line-height:1.75;font-weight:300;margin-bottom:2rem}
+.modal-details{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--gray-border)}
+.modal-detail-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-light);margin-bottom:4px}
+.modal-detail-val{font-size:.875rem;font-weight:500;color:var(--black)}
+.modal-footer{display:flex;justify-content:space-between;align-items:center}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;margin-top:3.5rem;align-items:start}
+.contact-heading{font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:600;line-height:1.15;letter-spacing:-.025em;margin-bottom:1.5rem}
+.contact-heading em{font-style:italic;color:var(--gray-mid);font-weight:400}
+.contact-info{margin-top:2.5rem;display:flex;flex-direction:column;gap:1.25rem}
+.contact-info-item{display:flex;gap:1rem;align-items:flex-start}
+.contact-info-icon{width:40px;height:40px;background:var(--gray-faint);border:1px solid var(--gray-border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.contact-info-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-light);margin-bottom:2px}
+.contact-info-val{color:var(--black);font-weight:500;font-size:.875rem}
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-size:.8rem;font-weight:500;color:var(--gray-mid);margin-bottom:.5rem}
+.form-group input,.form-group textarea{width:100%;padding:.875rem 1.125rem;border:1px solid var(--gray-border);border-radius:var(--radius-md);font-family:var(--font-body);font-size:.9rem;color:var(--black);background:var(--white);outline:none;transition:border-color var(--t),box-shadow var(--t);resize:none}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--black);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+.form-group textarea{height:140px}
+
+/* VALUES */
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3.5rem}
+.value-card{padding:2rem 1.5rem;background:var(--white);border:1px solid var(--gray-border);border-radius:var(--radius-lg);transition:all var(--t)}
+.value-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.value-num{font-family:var(--font-display);font-size:3rem;font-weight:600;color:var(--gray-border);line-height:1;margin-bottom:1.25rem}
+.value-title{font-weight:500;font-size:1rem;margin-bottom:.5rem}
+.value-desc{font-size:.875rem;color:var(--gray-mid);line-height:1.65;font-weight:300}
+
+/* FOOTER */
+footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;max-width:1300px;margin:0 auto}
+.footer-name{font-family:var(--font-display);font-size:1.1rem;font-weight:600;letter-spacing:-.02em}
+.footer-role{font-size:.8rem;color:var(--gray-light);margin-top:2px}
+.footer-copy{font-size:.8rem;color:var(--gray-light)}
+.footer-socials{display:flex;gap:.75rem}
+.social-link{width:38px;height:38px;border:1px solid var(--gray-border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--gray-mid);text-decoration:none;font-weight:600;transition:all var(--t)}
+.social-link:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.hero-content>*{opacity:0;animation:fadeUp .7s ease forwards}
+.hero-content>*:nth-child(1){animation-delay:.1s}
+.hero-content>*:nth-child(2){animation-delay:.2s}
+.hero-content>*:nth-child(3){animation-delay:.3s}
+.hero-content>*:nth-child(4){animation-delay:.4s}
+.hero-visual{animation:fadeUp .9s .3s ease both}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .services-grid{grid-template-columns:repeat(2,1fr)}
+  .skills-grid{grid-template-columns:repeat(2,1fr)}
+  .values-grid{grid-template-columns:repeat(2,1fr)}
+  .timeline-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;text-align:center;padding-top:90px;gap:3rem}
+  .hero-desc{margin:0 auto 2.5rem}
+  .hero-btns{justify-content:center}
+  .hero-visual{display:none}
+  .about-grid{grid-template-columns:1fr;gap:3rem}
+  .services-grid{grid-template-columns:1fr}
+  .skills-grid{grid-template-columns:1fr 1fr}
+  .projects-layout{grid-template-columns:1fr}
+  .project-preview{display:none}
+  .values-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" id="nav-logo">Zehan</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#contact" class="nav-cta">Hire me</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:1300px;margin:0 auto;padding:0 5%">
+  <section class="hero" style="padding-left:0;padding-right:0;max-width:unset">
+    <div class="hero-content">
+      <div class="hero-tag" id="hero-tag">Available for freelance work</div>
+      <h1 id="hero-heading">Design that<br><em>speaks.</em><br>Code that works.</h1>
+      <p class="hero-desc" id="hero-desc">I'm Siful Islam Zehan — a UI/UX Designer and Full Stack Developer from Bangladesh. I craft clean, modern digital products.</p>
+      <div class="hero-btns">
+        <a href="#projects" class="btn-primary">View Projects ↓</a>
+        <a href="#contact" class="btn-outline">Contact Me</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img-wrap">
+        <div class="hero-img-bg"></div>
+        <div class="hero-img-inner">
+          <img src="assets/photo.png" alt="Siful Islam Zehan" onerror="this.style.display='none'">
+        </div>
+        <div class="hero-img-label">
+          <div class="status-dot"></div>
+          <span id="status-label">Open to opportunities</span>
+        </div>
+        <div class="hero-badge">Bangladesh 🇧🇩</div>
+        <div class="hero-stats"><div class="hero-stats-num">3+</div><div class="hero-stats-label">Years experience</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Full Stack Dev</span><span class="marquee-item">React.js</span><span class="marquee-item">Next.js</span><span class="marquee-item">Figma</span><span class="marquee-item">Node.js</span><span class="marquee-item">Tailwind CSS</span><span class="marquee-item">Product Design</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span>
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Full Stack Dev</span><span class="marquee-item">React.js</span><span class="marquee-item">Next.js</span><span class="marquee-item">Figma</span><span class="marquee-item">Node.js</span><span class="marquee-item">Tailwind CSS</span><span class="marquee-item">Product Design</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <div class="section-label">About me</div>
+      <h2 class="section-title">A designer who<br><em>also ships code.</em></h2>
+      <p class="section-desc">I'm a UI/UX Designer and Full Stack Developer based in Bangladesh. I bridge the gap between great design and solid engineering — creating digital products that look stunning and perform flawlessly.</p>
+      <p class="section-desc" style="margin-top:1rem">From websites and mobile apps to dashboards and landing pages, I handle everything from wireframes to deployment.</p>
+      <blockquote class="about-quote">"Clean design isn't just visual — it's how things work."</blockquote>
+      <div class="about-pills">
+        <span class="pill">UI/UX Design</span><span class="pill">Frontend Dev</span><span class="pill">Backend Dev</span><span class="pill">Product Design</span><span class="pill">Figma</span><span class="pill">React.js</span>
+      </div>
+    </div>
+    <div class="about-right">
+      <div class="about-stat"><div class="about-stat-num">30+</div><div class="about-stat-label">Projects completed</div></div>
+      <div class="about-stat"><div class="about-stat-num">15+</div><div class="about-stat-label">Satisfied clients worldwide</div></div>
+      <div class="about-stat"><div class="about-stat-num">3+</div><div class="about-stat-label">Years of experience</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" style="padding-top:0">
+  <div class="section-label">What I do</div>
+  <h2 class="section-title">Services I <em>offer</em></h2>
+  <div class="services-grid">
+    <div class="service-card"><span class="service-icon">✦</span><h3 class="service-title">Website UI/UX Design</h3><p class="service-desc">Clean, modern, and user-centered website interfaces designed in Figma with pixel-perfect detail.</p></div>
+    <div class="service-card"><span class="service-icon">◈</span><h3 class="service-title">Mobile App UI/UX</h3><p class="service-desc">Intuitive and beautiful mobile app designs for iOS and Android — from concept to prototype.</p></div>
+    <div class="service-card"><span class="service-icon">⊞</span><h3 class="service-title">Dashboard Design</h3><p class="service-desc">Data-rich dashboards with clear visual hierarchy, clean data visualization, and smooth workflows.</p></div>
+    <div class="service-card"><span class="service-icon">◲</span><h3 class="service-title">Landing Page Design</h3><p class="service-desc">High-converting, visually compelling landing pages crafted to drive action.</p></div>
+    <div class="service-card"><span class="service-icon">⌬</span><h3 class="service-title">Full Stack Development</h3><p class="service-desc">End-to-end web development with React, Next.js, Node.js, and modern databases.</p></div>
+    <div class="service-card"><span class="service-icon">⟡</span><h3 class="service-title">Frontend Development</h3><p class="service-desc">Translating designs into responsive, performant, accessible frontend code.</p></div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<div class="skills-section">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="section-label">Tech stack</div>
+    <h2 class="section-title">Tools & <em>technologies</em></h2>
+    <div class="skills-grid">
+      <div><div class="skills-group-title">Design tools</div><div class="skills-tags"><div class="skill-tag">Figma</div><div class="skill-tag">Adobe Photoshop</div><div class="skill-tag">Adobe XD</div></div></div>
+      <div><div class="skills-group-title">Frontend</div><div class="skills-tags"><div class="skill-tag">React.js</div><div class="skill-tag">Next.js</div><div class="skill-tag">Tailwind CSS</div><div class="skill-tag">TypeScript</div><div class="skill-tag">JavaScript / HTML / CSS</div></div></div>
+      <div><div class="skills-group-title">Backend</div><div class="skills-tags"><div class="skill-tag">Node.js</div><div class="skill-tag">Express.js</div><div class="skill-tag">NestJS</div><div class="skill-tag">REST API</div><div class="skill-tag">JWT Auth</div></div></div>
+      <div><div class="skills-group-title">Database</div><div class="skills-tags"><div class="skill-tag">PostgreSQL</div><div class="skill-tag">MongoDB</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">Selected work</div>
+  <h2 class="section-title">Projects I've <em>crafted</em></h2>
+  <div class="projects-layout">
+    <div class="projects-list" id="projects-list"></div>
+    <div class="project-preview">
+      <div class="preview-card">
+        <div class="preview-mockup" id="preview-mockup">
+          <img class="preview-banner" id="preview-banner" src="" alt="">
+          <div id="preview-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:1rem">
+            <div class="preview-icon">⊞</div>
+            <div class="preview-label" id="preview-label">Project</div>
+          </div>
+        </div>
+      </div>
+      <div class="preview-meta">
+        <div>
+          <div class="preview-meta-title" id="preview-title">—</div>
+          <div class="preview-meta-tag" id="preview-tag">—</div>
+        </div>
+        <button class="preview-btn" onclick="openProjectModal(activeProjectIdx)">View Project →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE & EDUCATION -->
+<div class="timeline-section" id="experience">
+  <div class="section-label">Background</div>
+  <h2 class="section-title">Experience & <em>Education</em></h2>
+  <div class="timeline-grid">
+    <div>
+      <div class="skills-group-title" style="margin-bottom:1.5rem">Work Experience</div>
+      <div class="timeline-list" id="exp-timeline"></div>
+    </div>
+    <div>
+      <div class="skills-group-title" style="margin-bottom:1.5rem">Education</div>
+      <div class="timeline-list" id="edu-timeline"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VALUES -->
+<section style="padding-top:60px">
+  <div class="section-label">Why work with me</div>
+  <h2 class="section-title">Built on <em>strong foundations</em></h2>
+  <div class="values-grid">
+    <div class="value-card"><div class="value-num">01</div><div class="value-title">Design-first thinking</div><div class="value-desc">Every project starts with understanding the user. I build design systems that are consistent, scalable, and beautiful.</div></div>
+    <div class="value-card"><div class="value-num">02</div><div class="value-title">Strong UX instincts</div><div class="value-desc">I think in user flows, not just screens. Good UX means users never have to think twice.</div></div>
+    <div class="value-card"><div class="value-num">03</div><div class="value-title">Real product experience</div><div class="value-desc">I've designed and built complete digital products — not just mockups. I understand what it takes to ship.</div></div>
+    <div class="value-card"><div class="value-num">04</div><div class="value-title">Full stack capability</div><div class="value-desc">I speak both design and engineering. Designs are feasible, and code always looks as intended.</div></div>
+    <div class="value-card"><div class="value-num">05</div><div class="value-title">Clean, maintainable code</div><div class="value-desc">Code I write is organized, readable, and built to scale.</div></div>
+    <div class="value-card"><div class="value-num">06</div><div class="value-title">End-to-end delivery</div><div class="value-desc">From wireframe to deployment — one person, complete ownership.</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="background:var(--gray-faint);border-radius:var(--radius-xl);margin:0 5% 80px;max-width:unset;padding:80px 5%">
+  <div style="max-width:1300px;margin:0 auto">
+    <div class="contact-grid">
+      <div>
+        <div class="section-label">Get in touch</div>
+        <h2 class="contact-heading">Let's build something<br><em>great together.</em></h2>
+        <p class="section-desc">Have a project in mind? I'd love to hear about it.</p>
+        <div class="contact-info">
+          <div class="contact-info-item">
+            <div class="contact-info-icon">✉</div>
+            <div><div class="contact-info-label">Email</div><div class="contact-info-val" id="ci-email">sifulislamzehan@gmail.com</div></div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">📍</div>
+            <div><div class="contact-info-label">Location</div><div class="contact-info-val" id="ci-location">Bangladesh 🇧🇩</div></div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">⏱</div>
+            <div><div class="contact-info-label">Response time</div><div class="contact-info-val">Within 24 hours</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="f-name" placeholder="John Smith"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="f-email" placeholder="john@example.com"></div>
+        <div class="form-group"><label>Message</label><textarea id="f-msg" placeholder="Tell me about your project..."></textarea></div>
+        <button class="btn-primary" style="width:100%;justify-content:center" onclick="submitForm()">Send Message →</button>
+        <div id="form-success" style="display:none;margin-top:1rem;padding:1rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-md);font-size:.875rem;color:#166534;text-align:center">✓ Message sent! I'll get back to you within 24 hours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div><div class="footer-name" id="footer-name">Siful Islam Zehan</div><div class="footer-role" id="footer-role">UI/UX Designer & Full Stack Developer</div></div>
+  <div class="footer-copy">© 2025 Siful Islam Zehan. All rights reserved.</div>
+  <div class="footer-socials">
+    <a href="#" class="social-link" id="sl-linkedin" title="LinkedIn">in</a>
+    <a href="#" class="social-link" id="sl-dribbble" title="Dribbble">Dr</a>
+    <a href="#" class="social-link" id="sl-github" title="GitHub">Gh</a>
+    <a href="#" class="social-link" id="sl-behance" title="Behance">Be</a>
+  </div>
+</footer>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="project-modal" onclick="if(event.target===this)closeProjectModal()">
+  <div class="modal-card">
+    <div class="modal-visual" id="modal-visual">
+      <button class="modal-close" onclick="closeProjectModal()">✕</button>
+      <img class="modal-full-img" id="modal-full-img" src="" alt="">
+      <div class="modal-icon-wrap" id="modal-icon-wrap">
+        <div class="modal-visual-icon">⊞</div>
+        <div class="modal-visual-label" id="modal-label-text"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <span class="modal-tag-pill" id="modal-cat">—</span>
+      <h2 class="modal-title-text" id="modal-title">—</h2>
+      <p class="modal-desc-text" id="modal-desc">—</p>
+      <div class="modal-details">
+        <div><div class="modal-detail-label">Year</div><div class="modal-detail-val" id="modal-year">—</div></div>
+        <div><div class="modal-detail-label">My Role</div><div class="modal-detail-val" id="modal-role">—</div></div>
+        <div><div class="modal-detail-label">Tools</div><div class="modal-detail-val" id="modal-tools">—</div></div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" id="modal-link" class="btn-primary" style="font-size:.85rem;display:none" target="_blank">View Live Project →</a>
+        <button onclick="closeProjectModal()" class="btn-outline" style="font-size:.85rem">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load shared data store FIRST -->
+<script src="data.js"></script>
 <script>
+// ═══════════════════════════════════════════
+//  PORTFOLIO  —  reads everything from DB
+// ═══════════════════════════════════════════
+
 const BG_COLORS = ['#f0f4ff','#f0fff8','#fff8f0','#fff0f4','#f5f0ff','#fafaf0','#e8f4ff'];
 let activeProjectIdx = 0;
 let allProjects = [];
 
+// ── Apply settings ──
 function applySettings() {
   const s = DB.get('settings');
   const c = DB.get('contact');
-
-  const statusMap = {
-    open: 'Open to opportunities',
-    freelance: 'Available for freelance',
-    busy: 'Not available right now'
-  };
-
-  const statusLabel = document.getElementById('status-label');
-  const heroTag = document.getElementById('hero-tag');
-  const ciEmail = document.getElementById('ci-email');
-  const ciLocation = document.getElementById('ci-location');
-  const slLinkedin = document.getElementById('sl-linkedin');
-  const slGithub = document.getElementById('sl-github');
-  const slDribbble = document.getElementById('sl-dribbble');
-  const slBehance = document.getElementById('sl-behance');
-
-  if (statusLabel) statusLabel.textContent = statusMap[s.status] || 'Open to opportunities';
-  if (heroTag) heroTag.textContent = s.heroTag || 'Available for freelance work';
-  if (ciEmail) ciEmail.textContent = c.email || 'sifulislamzehan@gmail.com';
-  if (ciLocation) ciLocation.textContent = (c.location || 'Bangladesh') + ' 🇧🇩';
-
-  if (slLinkedin) slLinkedin.href = c.linkedin || '#';
-  if (slGithub) slGithub.href = c.github || '#';
-  if (slDribbble) slDribbble.href = c.dribbble || '#';
-  if (slBehance) slBehance.href = c.behance || '#';
+  // Status
+  const statusMap = { open:'Open to opportunities', freelance:'Available for freelance', busy:'Not available right now' };
+  document.getElementById('status-label').textContent = statusMap[s.status] || 'Open to opportunities';
+  document.getElementById('hero-tag').textContent = s.heroTag || 'Available for freelance work';
+  // Contact info
+  document.getElementById('ci-email').textContent = c.email || 'sifulislamzehan@gmail.com';
+  document.getElementById('ci-location').textContent = (c.location || 'Bangladesh') + ' 🇧🇩';
+  // Social links
+  if(c.linkedin) document.getElementById('sl-linkedin').href = c.linkedin;
+  if(c.github)   document.getElementById('sl-github').href = c.github;
+  if(c.dribbble) document.getElementById('sl-dribbble').href = c.dribbble;
+  if(c.behance)  document.getElementById('sl-behance').href = c.behance;
 }
 
+// ── Render Projects ──
 function renderProjects() {
   allProjects = DB.get('projects');
   const list = document.getElementById('projects-list');
-
-  if (!list) return;
-
   if (!allProjects || allProjects.length === 0) {
     list.innerHTML = '<div style="padding:2rem;color:var(--gray-light);font-size:.875rem">No projects yet.</div>';
     return;
   }
-
-  list.innerHTML = allProjects.map((p, i) => `
-    <div class="project-item ${i === 0 ? 'active' : ''}" data-index="${i}"
+  list.innerHTML = allProjects.map((p,i) => `
+    <div class="project-item ${i===0?'active':''}" data-index="${i}"
          onclick="selectProject(${i}); openProjectModal(${i});">
-      <div class="project-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="project-num">${String(i+1).padStart(2,'0')}</div>
       <div class="project-name">${p.name}</div>
       <div class="project-tagline">${p.tag}</div>
     </div>
   `).join('');
-
-  list.querySelectorAll('.project-item').forEach((el, i) => {
+  list.querySelectorAll('.project-item').forEach((el,i) => {
     el.addEventListener('mouseenter', () => selectProject(i));
   });
-
   selectProject(0, true);
 }
 
-function selectProject(idx, silent = false) {
+// ── Select project in preview ──
+function selectProject(idx, silent) {
   allProjects = DB.get('projects');
-
   document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
-
-  const item = document.querySelector(`.project-item[data-index="${idx}"]`);
-  if (item) item.classList.add('active');
-
+  const el = document.querySelector(`.project-item[data-index="${idx}"]`);
+  if(el) el.classList.add('active');
   activeProjectIdx = idx;
   const p = allProjects[idx];
-  if (!p) return;
-
+  if(!p) return;
   const bg = BG_COLORS[idx % BG_COLORS.length];
   const bannerImg = document.getElementById('preview-banner');
   const placeholder = document.getElementById('preview-placeholder');
-  const previewLabel = document.getElementById('preview-label');
-  const previewMockup = document.getElementById('preview-mockup');
-  const previewTitle = document.getElementById('preview-title');
-  const previewTag = document.getElementById('preview-tag');
-
-  if (p.banner) {
-    bannerImg.src = p.banner;
-    bannerImg.style.display = 'block';
-    placeholder.style.display = 'none';
+  if(p.banner) {
+    bannerImg.src = p.banner; bannerImg.style.display='block'; placeholder.style.display='none';
   } else {
-    bannerImg.style.display = 'none';
-    placeholder.style.display = 'flex';
-    previewLabel.textContent = p.name;
+    bannerImg.style.display='none'; placeholder.style.display='flex';
+    document.getElementById('preview-label').textContent = p.name;
   }
-
-  previewMockup.style.background = p.banner ? '#000' : bg;
-  previewTitle.textContent = p.name;
-  previewTag.textContent = p.tag;
-
-  if (!silent) {
+  document.getElementById('preview-mockup').style.background = p.banner ? '#000' : bg;
+  document.getElementById('preview-title').textContent = p.name;
+  document.getElementById('preview-tag').textContent = p.tag;
+  if(!silent) {
     const card = document.querySelector('.preview-card');
-    if (card) {
-      card.style.transition = 'none';
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(10px)';
-      setTimeout(() => {
-        card.style.transition = 'all .35s ease';
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      }, 40);
-    }
+    card.style.transition='none'; card.style.opacity='0'; card.style.transform='translateY(10px)';
+    setTimeout(()=>{ card.style.transition='all .35s ease'; card.style.opacity='1'; card.style.transform='translateY(0)'; },40);
   }
 }
 
+// ── Project Modal ──
 function openProjectModal(idx) {
   allProjects = DB.get('projects');
   const p = allProjects[idx !== undefined ? idx : activeProjectIdx];
-  if (!p) return;
-
+  if(!p) return;
   const bg = BG_COLORS[(idx !== undefined ? idx : activeProjectIdx) % BG_COLORS.length];
   const fullImg = document.getElementById('modal-full-img');
   const iconWrap = document.getElementById('modal-icon-wrap');
-  const modalVisual = document.getElementById('modal-visual');
-
-  modalVisual.style.background = bg;
-
-  if (p.full) {
-    fullImg.src = p.full;
-    fullImg.style.display = 'block';
-    iconWrap.style.display = 'none';
-  } else if (p.banner) {
-    fullImg.src = p.banner;
-    fullImg.style.display = 'block';
-    iconWrap.style.display = 'none';
+  document.getElementById('modal-visual').style.background = bg;
+  if(p.full) {
+    fullImg.src=p.full; fullImg.style.display='block'; iconWrap.style.display='none';
+  } else if(p.banner) {
+    fullImg.src=p.banner; fullImg.style.display='block'; iconWrap.style.display='none';
   } else {
-    fullImg.style.display = 'none';
-    iconWrap.style.display = 'flex';
+    fullImg.style.display='none'; iconWrap.style.display='flex';
     document.getElementById('modal-label-text').textContent = p.name;
   }
-
   document.getElementById('modal-cat').textContent = p.category || p.tag;
   document.getElementById('modal-title').textContent = p.name;
   document.getElementById('modal-desc').textContent = p.fulldesc || p.desc;
-  document.getElementById('modal-year').textContent = p.year || '—';
-  document.getElementById('modal-role').textContent = p.role || '—';
-  document.getElementById('modal-tools').textContent = p.tools || '—';
-
+  document.getElementById('modal-year').textContent = p.year;
+  document.getElementById('modal-role').textContent = p.role;
+  document.getElementById('modal-tools').textContent = p.tools;
   const linkEl = document.getElementById('modal-link');
-  if (p.link) {
-    linkEl.href = p.link;
-    linkEl.style.display = 'inline-flex';
-  } else {
-    linkEl.style.display = 'none';
-  }
-
+  if(p.link){ linkEl.href=p.link; linkEl.style.display='inline-flex'; } else { linkEl.style.display='none'; }
   document.getElementById('project-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
-
 function closeProjectModal() {
   document.getElementById('project-modal').classList.remove('open');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 
+// ── Render Experience Timeline ──
 function renderExperience() {
   const list = document.getElementById('exp-timeline');
   const data = DB.get('experience');
-  if (!list) return;
-
-  if (!data || data.length === 0) {
-    list.innerHTML = '<div class="timeline-empty">No experience added yet.</div>';
-    return;
-  }
-
+  if(!data || data.length===0) { list.innerHTML='<div class="timeline-empty">No experience added yet.</div>'; return; }
   list.innerHTML = data.map(e => `
     <div class="timeline-item">
-      <div class="timeline-dot-col">
-        <div class="timeline-dot"></div>
-        <div class="timeline-line"></div>
-      </div>
+      <div class="timeline-dot-col"><div class="timeline-dot"></div><div class="timeline-line"></div></div>
       <div class="timeline-content">
         <div class="timeline-period">${e.start} — ${e.end}</div>
         <div class="timeline-title">${e.role}</div>
@@ -186,24 +591,16 @@ function renderExperience() {
   `).join('');
 }
 
+// ── Render Education Timeline ──
 function renderEducation() {
   const list = document.getElementById('edu-timeline');
   const data = DB.get('education');
-  if (!list) return;
-
-  if (!data || data.length === 0) {
-    list.innerHTML = '<div class="timeline-empty">No education added yet.</div>';
-    return;
-  }
-
+  if(!data || data.length===0) { list.innerHTML='<div class="timeline-empty">No education added yet.</div>'; return; }
   list.innerHTML = data.map(e => `
     <div class="timeline-item">
-      <div class="timeline-dot-col">
-        <div class="timeline-dot"></div>
-        <div class="timeline-line"></div>
-      </div>
+      <div class="timeline-dot-col"><div class="timeline-dot"></div><div class="timeline-line"></div></div>
       <div class="timeline-content">
-        <div class="timeline-period">${e.year || '—'}</div>
+        <div class="timeline-period">${e.year}</div>
         <div class="timeline-title">${e.degree}</div>
         <div class="timeline-subtitle">${e.institution}</div>
         ${e.desc ? `<div class="timeline-desc">${e.desc}</div>` : ''}
@@ -212,41 +609,35 @@ function renderEducation() {
   `).join('');
 }
 
+// ── Contact form ──
 function submitForm() {
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
-  const message = document.getElementById('f-msg').value.trim();
-  const success = document.getElementById('form-success');
-
-  if (!name || !email || !message) {
-    alert('Please fill all fields');
-    return;
-  }
-
-  const messages = DB.get('messages');
-  messages.unshift({
-    id: Date.now(),
-    name,
-    email,
-    message,
-    time: new Date().toLocaleString(),
-    read: false
-  });
-
-  DB.set('messages', messages);
-
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-email').value = '';
-  document.getElementById('f-msg').value = '';
-
-  if (success) {
-    success.style.display = 'block';
-    setTimeout(() => {
-      success.style.display = 'none';
-    }, 3000);
-  }
+  const msg = document.getElementById('f-msg').value.trim();
+  const fields = [document.getElementById('f-name'), document.getElementById('f-email'), document.getElementById('f-msg')];
+  let valid = true;
+  fields.forEach(f => { if(!f.value.trim()){ f.style.borderColor='#fca5a5'; valid=false; } else { f.style.borderColor=''; } });
+  if(!valid) return;
+  const msgs = DB.get('messages') || [];
+  msgs.unshift({ id: Date.now(), name, email, message: msg, time: new Date().toLocaleString(), read: false });
+  DB.set('messages', msgs);
+  document.getElementById('form-success').style.display = 'block';
+  fields.forEach(f => f.value = '');
 }
 
+// ── Reveal animations ──
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.service-card,.value-card,.about-stat,.skill-tag,.timeline-item').forEach((el,i) => {
+    el.style.opacity='0'; el.style.transform='translateY(16px)';
+    el.style.transition=`opacity .5s ${i*.04}s ease, transform .5s ${i*.04}s ease`;
+    obs.observe(el);
+  });
+}
+
+// ── INIT ──
 function refreshPortfolio() {
   applySettings();
   renderProjects();
@@ -255,15 +646,24 @@ function refreshPortfolio() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (typeof DB === 'undefined') {
+    console.error('data.js failed to load');
+    return;
+  }
   DB.init();
   refreshPortfolio();
+  initReveal();
 });
 
 window.addEventListener('pf-data-updated', () => {
   refreshPortfolio();
 });
 
-window.addEventListener('storage', () => {
-  refreshPortfolio();
+window.addEventListener('storage', (event) => {
+  if (!event.key || Object.values(DB.KEYS).includes(event.key)) {
+    refreshPortfolio();
+  }
 });
 </script>
+</body>
+</html>

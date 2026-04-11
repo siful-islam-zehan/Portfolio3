@@ -159,7 +159,7 @@ tr:hover td{background:var(--gray-faint)}
     <input type="password" id="lp" placeholder="Password">
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="login-err" id="lerr">❌ Wrong credentials</div>
-    <div class="login-hint">Owner Access Only</div>
+    <div class="login-hint">Default: admin / zehan2025</div>
   </div>
 </div>
 
@@ -423,6 +423,10 @@ function doLogin() {
   const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value.trim();
   if(u===CREDS.user && p===CREDS.pass) {
+    if (typeof DB === 'undefined') {
+      alert('data.js load hoy nai');
+      return;
+    }
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     DB.init(); initApp();
@@ -432,11 +436,7 @@ function doLogin() {
 }
 document.getElementById('lp').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 document.getElementById('lu').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-function doLogout() {
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('lerr').style.display = 'none';
-}
+function doLogout() { document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; document.getElementById('lerr').style.display='none'; }
 
 // ── NAV ──
 function goto(page) {

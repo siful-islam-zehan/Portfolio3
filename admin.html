@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Siful Islam Zehan Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0e0e0e;--gray-dark:#2a2a2a;--gray-mid:#5a5a5a;
+  --gray-light:#b0b0b0;--gray-faint:#f5f5f3;--gray-border:#e8e8e4;--white:#fff;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+  --sidebar:250px;
+  --font-display:'Playfair Display',serif;--font-body:'DM Sans',system-ui,sans-serif;
+  --r:8px;--rlg:14px;
+}
+body{font-family:var(--font-body);background:#f8f8f6;color:var(--black);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--white);z-index:9999;display:flex;align-items:center;justify-content:center}
+.login-box{width:360px;padding:2.5rem;border:1px solid var(--gray-border);border-radius:var(--rlg);background:var(--white)}
+.login-logo{font-family:var(--font-display);font-size:1.3rem;font-weight:600;margin-bottom:.35rem}
+.login-sub{font-size:.82rem;color:var(--gray-mid);margin-bottom:1.75rem}
+.login-box input{width:100%;padding:.7rem .9rem;border:1px solid var(--gray-border);border-radius:var(--r);font-family:var(--font-body);font-size:.875rem;outline:none;margin-bottom:.65rem;transition:border-color .2s}
+.login-box input:focus{border-color:var(--black)}
+.login-btn{width:100%;padding:.8rem;background:var(--black);color:var(--white);border:none;border-radius:var(--r);font-family:var(--font-body);font-size:.875rem;font-weight:500;cursor:pointer}
+.login-err{font-size:.78rem;color:var(--red);margin-top:.5rem;display:none}
+.login-hint{font-size:.72rem;color:var(--gray-light);margin-top:.75rem;text-align:center}
+
+/* LAYOUT */
+#app{display:none}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--white);border-right:1px solid var(--gray-border);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:1.25rem;border-bottom:1px solid var(--gray-border)}
+.sb-logo-name{font-family:var(--font-display);font-size:.95rem;font-weight:600}
+.sb-logo-role{font-size:.68rem;color:var(--gray-light);margin-top:2px}
+.sb-nav{flex:1;padding:.75rem 0;overflow-y:auto}
+.sb-group{font-size:.62rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-light);padding:.65rem 1.1rem .3rem}
+.sb-item{display:flex;align-items:center;gap:.6rem;padding:.55rem 1.1rem;cursor:pointer;color:var(--gray-mid);font-size:.82rem;transition:all .2s;border-left:2px solid transparent;margin:1px 0}
+.sb-item:hover{background:var(--gray-faint);color:var(--black)}
+.sb-item.active{background:var(--gray-faint);color:var(--black);border-left-color:var(--black);font-weight:500}
+.sb-icon{width:16px;text-align:center;font-size:.9rem}
+.sb-bottom{padding:.9rem 1.1rem;border-top:1px solid var(--gray-border);display:flex;flex-direction:column;gap:.5rem}
+.sb-btn{width:100%;padding:.55rem;border:1px solid var(--gray-border);background:transparent;border-radius:var(--r);font-family:var(--font-body);font-size:.78rem;color:var(--gray-mid);cursor:pointer;text-align:center;text-decoration:none;display:block;transition:all .2s}
+.sb-btn:hover{border-color:var(--black);color:var(--black)}
+.sb-btn-danger:hover{border-color:var(--red);color:var(--red)}
+
+.main{margin-left:var(--sidebar);min-height:100vh;padding:2rem 2rem}
+.ph{margin-bottom:1.75rem;display:flex;justify-content:space-between;align-items:flex-start}
+.ph-left{}
+.page-title{font-family:var(--font-display);font-size:1.4rem;font-weight:600;letter-spacing:-.02em}
+.page-sub{font-size:.78rem;color:var(--gray-mid);margin-top:3px}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-bottom:1.75rem}
+.stat-card{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--rlg);padding:1.1rem 1.25rem}
+.stat-num{font-family:var(--font-display);font-size:1.75rem;font-weight:600;line-height:1}
+.stat-label{font-size:.72rem;color:var(--gray-mid);margin-top:4px}
+
+/* PANEL */
+.panel{background:var(--white);border:1px solid var(--gray-border);border-radius:var(--rlg);margin-bottom:1.25rem;overflow:hidden}
+.panel-head{padding:1rem 1.25rem;border-bottom:1px solid var(--gray-border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-weight:500;font-size:.875rem}
+.panel-body{padding:1.25rem}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.48rem 1rem;border-radius:var(--r);font-family:var(--font-body);font-size:.78rem;font-weight:500;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn-primary{background:var(--black);color:var(--white)}
+.btn-primary:hover{background:#2a2a2a}
+.btn-outline{background:transparent;color:var(--black);border:1px solid var(--gray-border)}
+.btn-outline:hover{border-color:var(--black)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn-sm{padding:.3rem .65rem;font-size:.72rem}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.fg label{font-size:.75rem;font-weight:500;color:var(--gray-dark)}
+.fg input,.fg select,.fg textarea{padding:.65rem .85rem;border:1px solid var(--gray-border);border-radius:var(--r);font-family:var(--font-body);font-size:.82rem;color:var(--black);background:var(--white);outline:none;transition:border-color .2s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--black)}
+.fg textarea{min-height:90px;resize:vertical}
+.fg-hint{font-size:.68rem;color:var(--gray-light)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* IMAGE UPLOAD */
+.img-drop{border:2px dashed var(--gray-border);border-radius:var(--r);padding:1.25rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--gray-faint)}
+.img-drop:hover{border-color:var(--black);background:var(--white)}
+.img-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-drop-icon{font-size:1.5rem;margin-bottom:.35rem;opacity:.35}
+.img-drop-label{font-size:.75rem;color:var(--gray-mid)}
+.img-preview{width:100%;object-fit:cover;border-radius:var(--r);margin-top:.65rem;display:none}
+.img-preview.banner{height:120px}
+.img-preview.full{height:200px}
+
+/* LIST ROWS */
+.project-row{display:grid;grid-template-columns:56px 1fr auto;gap:.9rem;align-items:center;padding:.85rem;border:1px solid var(--gray-border);border-radius:var(--r);margin-bottom:.6rem;transition:all .2s}
+.project-row:hover{border-color:#ccc}
+.thumb{width:56px;height:42px;border-radius:5px;background:var(--gray-faint);display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;flex-shrink:0}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.row-name{font-weight:500;font-size:.85rem}
+.row-sub{font-size:.72rem;color:var(--gray-light);margin-top:2px}
+.row-actions{display:flex;gap:.4rem;flex-shrink:0}
+
+.exp-row{padding:.9rem 1.1rem;border:1px solid var(--gray-border);border-radius:var(--r);display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem;transition:all .2s}
+.exp-row:hover{border-color:#ccc}
+.exp-company{font-weight:500;font-size:.875rem}
+.exp-role-text{font-size:.78rem;color:var(--gray-mid);margin-top:2px}
+.exp-period{font-size:.72rem;color:var(--gray-light);white-space:nowrap}
+.badge{padding:.18rem .55rem;border-radius:20px;font-size:.66rem;font-weight:500;background:#eff6ff;color:#1d4ed8}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(4px)}
+.moverlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--rlg);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;animation:mIn .3s ease}
+@keyframes mIn{from{transform:translateY(18px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.mhead{padding:1.25rem;border-bottom:1px solid var(--gray-border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--white);z-index:1}
+.mhead-title{font-family:var(--font-display);font-size:1rem;font-weight:600}
+.mclose{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--gray-mid);line-height:1;padding:.25rem}
+.mclose:hover{color:var(--black)}
+.mbody{padding:1.25rem}
+.mfoot{padding:.9rem 1.25rem;border-top:1px solid var(--gray-border);display:flex;justify-content:flex-end;gap:.65rem;position:sticky;bottom:0;background:var(--white)}
+
+/* MESSAGES */
+.msg-row{padding:.85rem 1rem;border:1px solid var(--gray-border);border-radius:var(--r);margin-bottom:.55rem;cursor:pointer;transition:all .2s}
+.msg-row:hover{border-color:#ccc}
+.msg-row.unread{border-left:3px solid var(--black)}
+.msg-name{font-weight:500;font-size:.85rem}
+.msg-email{font-size:.72rem;color:var(--gray-light)}
+.msg-preview{font-size:.78rem;color:var(--gray-mid);margin-top:.2rem;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+
+/* CV */
+.cv-box{border:1px solid var(--gray-border);border-radius:var(--r);padding:1.1rem;display:flex;align-items:center;justify-content:space-between}
+.cv-info{display:flex;align-items:center;gap:.65rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.75rem;right:1.75rem;background:var(--black);color:var(--white);padding:.65rem 1.1rem;border-radius:var(--r);font-size:.82rem;transform:translateY(70px);opacity:0;transition:all .3s;z-index:9999}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+table{width:100%;border-collapse:collapse}
+th{font-size:.68rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-light);text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--gray-border)}
+td{padding:.65rem .7rem;font-size:.82rem;border-bottom:1px solid var(--gray-border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-faint)}
+
+@media(max-width:900px){.stat-grid{grid-template-columns:1fr 1fr}.sidebar{transform:translateX(-100%)}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Zehan · Admin</div>
+    <div class="login-sub">Portfolio Dashboard — Sign in to continue</div>
+    <input type="text" id="lu" placeholder="Username" autocomplete="off">
+    <input type="password" id="lp" placeholder="Password">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="lerr">❌ Wrong credentials</div>
+    <div class="login-hint">Default: admin / zehan2025</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-name">Zehan Admin</div>
+      <div class="sb-logo-role">Portfolio Dashboard</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-group">Overview</div>
+      <div class="sb-item active" onclick="goto('dashboard')"><span class="sb-icon">◈</span>Dashboard</div>
+      <div class="sb-group">Content</div>
+      <div class="sb-item" onclick="goto('projects')"><span class="sb-icon">⊞</span>Projects</div>
+      <div class="sb-item" onclick="goto('experience')"><span class="sb-icon">◻</span>Experience</div>
+      <div class="sb-item" onclick="goto('education')"><span class="sb-icon">✦</span>Education</div>
+      <div class="sb-item" onclick="goto('cv')"><span class="sb-icon">📄</span>CV / Resume</div>
+      <div class="sb-group">Settings</div>
+      <div class="sb-item" onclick="goto('contact')"><span class="sb-icon">✉</span>Contact Info</div>
+      <div class="sb-item" onclick="goto('messages')"><span class="sb-icon">◲</span>Messages&nbsp;<span id="mbadge" style="background:#ef4444;color:#fff;font-size:.6rem;padding:.1rem .4rem;border-radius:10px"></span></div>
+    </nav>
+    <div class="sb-bottom">
+      <a href="index.html" target="_blank" class="sb-btn">↗ View Portfolio</a>
+      <button class="sb-btn sb-btn-danger" onclick="doLogout()">← Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph"><div class="ph-left"><div class="page-title">Dashboard</div><div class="page-sub">Your portfolio at a glance</div></div></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="s-projects">0</div><div class="stat-label">Projects</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-exp">0</div><div class="stat-label">Experience</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-msgs">0</div><div class="stat-label">Messages</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-cv" style="font-size:1.1rem;padding-top:6px">—</div><div class="stat-label">CV Status</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Recent Projects</div><button class="btn btn-outline btn-sm" onclick="goto('projects')">View All</button></div>
+        <div id="dash-projects" style="padding:0"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Recent Messages</div><button class="btn btn-outline btn-sm" onclick="goto('messages')">View All</button></div>
+        <div class="panel-body" id="dash-msgs"></div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="page" id="page-projects">
+      <div class="ph">
+        <div class="ph-left"><div class="page-title">Projects</div><div class="page-sub">Manage your portfolio projects</div></div>
+        <button class="btn btn-primary" onclick="openProjModal()">+ Add Project</button>
+      </div>
+      <div class="panel"><div class="panel-body" style="padding:.75rem"><div id="proj-list"></div></div></div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="page" id="page-experience">
+      <div class="ph">
+        <div class="ph-left"><div class="page-title">Experience</div><div class="page-sub">Your work history</div></div>
+        <button class="btn btn-primary" onclick="openExpModal()">+ Add Experience</button>
+      </div>
+      <div class="panel"><div class="panel-body"><div id="exp-list"></div></div></div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="page" id="page-education">
+      <div class="ph">
+        <div class="ph-left"><div class="page-title">Education</div><div class="page-sub">Your academic background</div></div>
+        <button class="btn btn-primary" onclick="openEduModal()">+ Add Education</button>
+      </div>
+      <div class="panel"><div class="panel-body"><div id="edu-list"></div></div></div>
+    </div>
+
+    <!-- CV -->
+    <div class="page" id="page-cv">
+      <div class="ph"><div class="ph-left"><div class="page-title">CV / Resume</div><div class="page-sub">Upload your resume PDF</div></div></div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="fg">
+            <label>Upload PDF Resume</label>
+            <div class="img-drop" onclick="document.getElementById('cv-input').click()">
+              <div class="img-drop-icon">📄</div>
+              <div class="img-drop-label">Click to upload PDF</div>
+              <input type="file" id="cv-input" accept=".pdf" style="display:none" onchange="uploadCV(this)">
+            </div>
+          </div>
+          <div id="cv-box" style="display:none">
+            <label class="fg" style="gap:0;margin-bottom:.5rem"><span style="font-size:.75rem;font-weight:500;color:var(--gray-dark)">Current CV</span></label>
+            <div class="cv-box">
+              <div class="cv-info"><span style="font-size:1.4rem">📄</span><div><div style="font-weight:500;font-size:.85rem" id="cv-name">—</div><div style="font-size:.72rem;color:var(--gray-light)" id="cv-size">—</div></div></div>
+              <div style="display:flex;gap:.5rem">
+                <button class="btn btn-outline btn-sm" onclick="downloadCV()">⬇ Download</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCV()">✕ Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="page" id="page-contact">
+      <div class="ph"><div class="ph-left"><div class="page-title">Contact Info</div><div class="page-sub">Your public contact details shown on portfolio</div></div></div>
+      <div class="panel">
+        <div class="panel-body" style="max-width:520px">
+          <div class="fg"><label>Status</label>
+            <select id="c-status">
+              <option value="open">✅ Open to opportunities</option>
+              <option value="freelance">💼 Available for freelance</option>
+              <option value="busy">🔴 Not available right now</option>
+            </select>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>Email</label><input id="c-email" placeholder="your@email.com"></div>
+            <div class="fg"><label>Phone</label><input id="c-phone" placeholder="+880 ..."></div>
+          </div>
+          <div class="fg"><label>Location</label><input id="c-location" placeholder="Dhaka, Bangladesh"></div>
+          <div class="grid2">
+            <div class="fg"><label>LinkedIn URL</label><input id="c-linkedin" placeholder="https://linkedin.com/in/..."></div>
+            <div class="fg"><label>GitHub URL</label><input id="c-github" placeholder="https://github.com/..."></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>Dribbble URL</label><input id="c-dribbble" placeholder="https://dribbble.com/..."></div>
+            <div class="fg"><label>Behance URL</label><input id="c-behance" placeholder="https://behance.net/..."></div>
+          </div>
+          <button class="btn btn-primary" onclick="saveContact()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="page" id="page-messages">
+      <div class="ph">
+        <div class="ph-left"><div class="page-title">Messages</div><div class="page-sub">Contact form submissions from your portfolio</div></div>
+        <button class="btn btn-outline btn-sm" onclick="clearMsgs()">Clear All</button>
+      </div>
+      <div class="panel"><div class="panel-body" id="msg-list"></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="moverlay" id="pm" onclick="if(event.target===this)closeM('pm')">
+  <div class="modal">
+    <div class="mhead"><div class="mhead-title" id="pm-title">Add Project</div><button class="mclose" onclick="closeM('pm')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Project Name *</label><input id="pm-name" placeholder="e.g. NaijaRadar"></div>
+      <div class="fg"><label>Category / Tag</label><input id="pm-tag" placeholder="e.g. UI/UX Design · Dashboard"></div>
+      <div class="fg"><label>Short Description *</label><textarea id="pm-desc" placeholder="One paragraph about the project..." style="min-height:70px"></textarea></div>
+      <div class="fg"><label>Full Description (shown in popup)</label><textarea id="pm-fulldesc" style="min-height:100px" placeholder="Detailed description for project modal..."></textarea></div>
+      <div class="grid2">
+        <div class="fg"><label>Year</label><input id="pm-year" placeholder="2024"></div>
+        <div class="fg"><label>My Role</label><input id="pm-role" placeholder="Lead Designer"></div>
+      </div>
+      <div class="fg"><label>Tools Used</label><input id="pm-tools" placeholder="Figma · React · Tailwind CSS"></div>
+      <div class="fg"><label>Project Link (optional)</label><input id="pm-link" placeholder="https://..."></div>
+      <div class="fg">
+        <label>Banner Image <span style="color:var(--gray-light);font-weight:400">(thumbnail — shown in preview)</span></label>
+        <div class="img-drop" onclick="triggerFile('pm-banner-input')">
+          <div class="img-drop-icon">🖼</div>
+          <div class="img-drop-label">Click to upload · Recommended 800×450px</div>
+          <input type="file" id="pm-banner-input" accept="image/*" style="display:none" onchange="previewFile(this,'pm-banner-prev','banner')">
+        </div>
+        <img id="pm-banner-prev" class="img-preview banner" alt="Banner">
+      </div>
+      <div class="fg">
+        <label>Full Project Image <span style="color:var(--gray-light);font-weight:400">(larger — shown in project popup)</span></label>
+        <div class="img-drop" onclick="triggerFile('pm-full-input')">
+          <div class="img-drop-icon">🗂</div>
+          <div class="img-drop-label">Click to upload · Recommended 1200×800px</div>
+          <input type="file" id="pm-full-input" accept="image/*" style="display:none" onchange="previewFile(this,'pm-full-prev','full')">
+        </div>
+        <img id="pm-full-prev" class="img-preview full" alt="Full">
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeM('pm')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPERIENCE MODAL -->
+<div class="moverlay" id="em" onclick="if(event.target===this)closeM('em')">
+  <div class="modal">
+    <div class="mhead"><div class="mhead-title" id="em-title">Add Experience</div><button class="mclose" onclick="closeM('em')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Job Title / Role *</label><input id="em-role" placeholder="e.g. UI/UX Designer"></div>
+      <div class="fg"><label>Company / Client *</label><input id="em-company" placeholder="e.g. Acme Agency"></div>
+      <div class="grid2">
+        <div class="fg"><label>Start Date</label><input id="em-start" placeholder="Jan 2022"></div>
+        <div class="fg"><label>End Date</label><input id="em-end" placeholder="Dec 2023 or Present"></div>
+      </div>
+      <div class="fg"><label>Employment Type</label>
+        <select id="em-type"><option>Full-time</option><option>Part-time</option><option>Freelance</option><option>Contract</option><option>Internship</option></select>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="em-desc" placeholder="Key responsibilities and achievements..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeM('em')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExp()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDUCATION MODAL -->
+<div class="moverlay" id="dum" onclick="if(event.target===this)closeM('dum')">
+  <div class="modal">
+    <div class="mhead"><div class="mhead-title" id="dum-title">Add Education</div><button class="mclose" onclick="closeM('dum')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Degree / Certificate *</label><input id="dum-degree" placeholder="e.g. BSc in Computer Science"></div>
+      <div class="fg"><label>Institution *</label><input id="dum-inst" placeholder="e.g. BUET, NSU, BRAC University"></div>
+      <div class="fg"><label>Year / Period</label><input id="dum-year" placeholder="e.g. 2018 — 2022"></div>
+      <div class="fg"><label>Description</label><textarea id="dum-desc" placeholder="What you studied, focus areas..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeM('dum')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdu()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGE MODAL -->
+<div class="moverlay" id="msgm" onclick="if(event.target===this)closeM('msgm')">
+  <div class="modal" style="max-width:460px">
+    <div class="mhead"><div class="mhead-title">Message</div><button class="mclose" onclick="closeM('msgm')">✕</button></div>
+    <div class="mbody">
+      <div style="margin-bottom:1rem">
+        <div style="font-weight:500;font-size:.9rem" id="md-name"></div>
+        <div style="font-size:.75rem;color:var(--gray-mid)" id="md-email"></div>
+        <div style="font-size:.7rem;color:var(--gray-light);margin-top:2px" id="md-time"></div>
+      </div>
+      <div style="background:var(--gray-faint);border-radius:var(--r);padding:.9rem;font-size:.82rem;line-height:1.7;color:var(--gray-dark)" id="md-body"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-outline" onclick="closeM('msgm')">Close</button>
+      <a id="md-reply" href="#" class="btn btn-primary">Reply via Email</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Shared data store -->
+<script src="data.js"></script>
+<script>
+// ═══════════════════════════════════════
+//  ADMIN  —  reads & writes via DB
+// ═══════════════════════════════════════
+
+const CREDS = { user:'admin', pass:'zehan2025' };
+let editProjIdx = null, editExpIdx = null, editEduIdx = null;
+let tmpBanner = null, tmpFull = null;
+
+// ── LOGIN ──
+function doLogin() {
+  const u = document.getElementById('lu').value.trim();
+  const p = document.getElementById('lp').value.trim();
+  if(u===CREDS.user && p===CREDS.pass) {
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    DB.init(); initApp();
+  } else {
+    document.getElementById('lerr').style.display='block';
+  }
+}
+document.getElementById('lp').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('lu').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+function doLogout() { document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; }
+
+// ── NAV ──
+function goto(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const navEl = document.querySelector(`.sb-item[onclick*="'${page}'"]`);
+  if(navEl) navEl.classList.add('active');
+  const renders = { dashboard:renderDash, projects:renderProjects, experience:renderExp, education:renderEdu, contact:loadContact, messages:renderMsgs, cv:renderCV };
+  if(renders[page]) renders[page]();
+}
+
+function initApp() { renderDash(); updateBadge(); }
+
+// ── DASHBOARD ──
+function renderDash() {
+  const projs = DB.get('projects');
+  const exps  = DB.get('experience');
+  const msgs  = DB.get('messages');
+  const cv    = DB.get('cv');
+  document.getElementById('s-projects').textContent = projs.length;
+  document.getElementById('s-exp').textContent = exps.length;
+  document.getElementById('s-msgs').textContent = msgs.length;
+  document.getElementById('s-cv').textContent = cv ? '✅ Uploaded' : '❌ None';
+  document.getElementById('s-cv').style.color = cv ? '#15803d' : '#ef4444';
+
+  // Recent projects table
+  const dp = document.getElementById('dash-projects');
+  dp.innerHTML = projs.length===0
+    ? '<div style="padding:1.5rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet</div>'
+    : '<table><thead><tr><th>Project</th><th>Category</th><th>Year</th></tr></thead><tbody>'+
+      projs.slice(0,5).map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.tag}</td><td>${p.year}</td></tr>`).join('')+
+      '</tbody></table>';
+
+  // Recent messages
+  const dm = document.getElementById('dash-msgs');
+  dm.innerHTML = msgs.length===0
+    ? '<div style="color:var(--gray-light);font-size:.82rem">No messages yet</div>'
+    : msgs.slice(0,3).map((m,i)=>`
+      <div class="msg-row ${m.read?'':'unread'}" onclick="goto('messages');setTimeout(()=>openMsg(${i}),100)">
+        <div style="display:flex;justify-content:space-between"><div class="msg-name">${m.name}</div><div style="font-size:.7rem;color:var(--gray-light)">${m.time}</div></div>
+        <div class="msg-email">${m.email}</div>
+        <div class="msg-preview">${m.message}</div>
+      </div>`).join('');
+}
+
+// ── PROJECTS ──
+function renderProjects() {
+  const data = DB.get('projects');
+  const el = document.getElementById('proj-list');
+  el.innerHTML = data.length===0
+    ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet. Click "+ Add Project"</div>'
+    : data.map((p,i)=>`
+      <div class="project-row">
+        <div class="thumb">${p.banner?`<img src="${p.banner}" alt="">`:'🖼'}</div>
+        <div><div class="row-name">${p.name}</div><div class="row-sub">${p.tag} · ${p.year}</div></div>
+        <div class="row-actions">
+          <button class="btn btn-outline btn-sm" onclick="openProjModal(${i})">✏ Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProj(${i})">✕</button>
+        </div>
+      </div>`).join('');
+}
+
+function openProjModal(idx) {
+  editProjIdx = idx!==undefined ? idx : null;
+  tmpBanner = null; tmpFull = null;
+  document.getElementById('pm-title').textContent = idx!==undefined ? 'Edit Project' : 'Add Project';
+  const fields = ['pm-name','pm-tag','pm-desc','pm-fulldesc','pm-year','pm-role','pm-tools','pm-link'];
+  const keys   = ['name',   'tag',   'desc',   'fulldesc',   'year',   'role',   'tools',   'link'];
+  if(idx!==undefined) {
+    const p = DB.get('projects')[idx];
+    keys.forEach((k,i)=>{ document.getElementById(fields[i]).value = p[k]||''; });
+    setPrev('pm-banner-prev', p.banner, 'banner'); tmpBanner = p.banner;
+    setPrev('pm-full-prev',   p.full,   'full');   tmpFull   = p.full;
+  } else {
+    fields.forEach(f=>document.getElementById(f).value='');
+    setPrev('pm-banner-prev',null,'banner'); setPrev('pm-full-prev',null,'full');
+  }
+  openM('pm');
+}
+
+function setPrev(id, src, cls) {
+  const el = document.getElementById(id);
+  if(src){ el.src=src; el.style.display='block'; el.className='img-preview '+cls; }
+  else { el.style.display='none'; el.src=''; }
+}
+
+function saveProject() {
+  const name = document.getElementById('pm-name').value.trim();
+  if(!name){ alert('Project name is required'); return; }
+  const data = DB.get('projects');
+  const obj = {
+    id: editProjIdx!==null ? data[editProjIdx].id : Date.now(),
+    name, tag:    document.getElementById('pm-tag').value.trim(),
+    desc:         document.getElementById('pm-desc').value.trim(),
+    fulldesc:     document.getElementById('pm-fulldesc').value.trim(),
+    year:         document.getElementById('pm-year').value.trim(),
+    role:         document.getElementById('pm-role').value.trim(),
+    tools:        document.getElementById('pm-tools').value.trim(),
+    link:         document.getElementById('pm-link').value.trim(),
+    category:     document.getElementById('pm-tag').value.trim().split('·')[0].trim(),
+    banner: tmpBanner, full: tmpFull,
+  };
+  if(editProjIdx!==null){ data[editProjIdx]=obj; } else { data.push(obj); }
+  DB.set('projects', data);
+  closeM('pm'); renderProjects(); renderDash(); toast(editProjIdx!==null?'Project updated ✓':'Project added ✓');
+}
+
+function deleteProj(i) {
+  if(!confirm('Delete this project?')) return;
+  const data = DB.get('projects');
+  data.splice(i,1); DB.set('projects',data);
+  renderProjects(); renderDash(); toast('Project deleted');
+}
+
+// ── EXPERIENCE ──
+function renderExp() {
+  const data = DB.get('experience');
+  const el = document.getElementById('exp-list');
+  el.innerHTML = data.length===0
+    ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No experience yet</div>'
+    : data.map((e,i)=>`
+      <div class="exp-row">
+        <div>
+          <div class="exp-company">${e.company}</div>
+          <div class="exp-role-text">${e.role} · <span class="badge">${e.type}</span></div>
+          ${e.desc?`<div style="font-size:.76rem;color:var(--gray-mid);margin-top:.35rem;max-width:420px">${e.desc}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+          <div class="exp-period">${e.start} — ${e.end}</div>
+          <div style="display:flex;gap:.4rem">
+            <button class="btn btn-outline btn-sm" onclick="openExpModal(${i})">✏</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteExp(${i})">✕</button>
+          </div>
+        </div>
+      </div>`).join('');
+}
+
+function openExpModal(idx) {
+  editExpIdx = idx!==undefined ? idx : null;
+  document.getElementById('em-title').textContent = idx!==undefined?'Edit Experience':'Add Experience';
+  if(idx!==undefined) {
+    const e = DB.get('experience')[idx];
+    document.getElementById('em-role').value=e.role; document.getElementById('em-company').value=e.company;
+    document.getElementById('em-start').value=e.start; document.getElementById('em-end').value=e.end;
+    document.getElementById('em-type').value=e.type; document.getElementById('em-desc').value=e.desc||'';
+  } else {
+    ['em-role','em-company','em-start','em-end','em-desc'].forEach(f=>document.getElementById(f).value='');
+    document.getElementById('em-type').value='Full-time';
+  }
+  openM('em');
+}
+
+function saveExp() {
+  const role=document.getElementById('em-role').value.trim(), company=document.getElementById('em-company').value.trim();
+  if(!role||!company){ alert('Role and company required'); return; }
+  const data=DB.get('experience');
+  const obj={id:editExpIdx!==null?data[editExpIdx].id:Date.now(),role,company,start:document.getElementById('em-start').value.trim(),end:document.getElementById('em-end').value.trim(),type:document.getElementById('em-type').value,desc:document.getElementById('em-desc').value.trim()};
+  if(editExpIdx!==null){data[editExpIdx]=obj;}else{data.push(obj);}
+  DB.set('experience',data); closeM('em'); renderExp(); renderDash(); toast('Experience saved ✓');
+}
+
+function deleteExp(i) {
+  if(!confirm('Delete?')) return;
+  const data=DB.get('experience'); data.splice(i,1); DB.set('experience',data); renderExp(); toast('Deleted');
+}
+
+// ── EDUCATION ──
+function renderEdu() {
+  const data = DB.get('education');
+  const el = document.getElementById('edu-list');
+  el.innerHTML = data.length===0
+    ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No education yet</div>'
+    : data.map((e,i)=>`
+      <div class="exp-row">
+        <div>
+          <div class="exp-company">${e.institution}</div>
+          <div class="exp-role-text">${e.degree}</div>
+          ${e.desc?`<div style="font-size:.76rem;color:var(--gray-mid);margin-top:.35rem;max-width:420px">${e.desc}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+          <div class="exp-period">${e.year}</div>
+          <div style="display:flex;gap:.4rem">
+            <button class="btn btn-outline btn-sm" onclick="openEduModal(${i})">✏</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteEdu(${i})">✕</button>
+          </div>
+        </div>
+      </div>`).join('');
+}
+
+function openEduModal(idx) {
+  editEduIdx = idx!==undefined?idx:null;
+  document.getElementById('dum-title').textContent=idx!==undefined?'Edit Education':'Add Education';
+  if(idx!==undefined){
+    const e=DB.get('education')[idx];
+    document.getElementById('dum-degree').value=e.degree; document.getElementById('dum-inst').value=e.institution;
+    document.getElementById('dum-year').value=e.year; document.getElementById('dum-desc').value=e.desc||'';
+  } else {
+    ['dum-degree','dum-inst','dum-year','dum-desc'].forEach(f=>document.getElementById(f).value='');
+  }
+  openM('dum');
+}
+
+function saveEdu() {
+  const degree=document.getElementById('dum-degree').value.trim(), inst=document.getElementById('dum-inst').value.trim();
+  if(!degree||!inst){alert('Degree and institution required');return;}
+  const data=DB.get('education');
+  const obj={id:editEduIdx!==null?data[editEduIdx].id:Date.now(),degree,institution:inst,year:document.getElementById('dum-year').value.trim(),desc:document.getElementById('dum-desc').value.trim()};
+  if(editEduIdx!==null){data[editEduIdx]=obj;}else{data.push(obj);}
+  DB.set('education',data); closeM('dum'); renderEdu(); toast('Education saved ✓');
+}
+
+function deleteEdu(i) {
+  if(!confirm('Delete?'))return;
+  const data=DB.get('education'); data.splice(i,1); DB.set('education',data); renderEdu(); toast('Deleted');
+}
+
+// ── CV ──
+function renderCV() {
+  const cv=DB.get('cv');
+  const box=document.getElementById('cv-box');
+  if(cv){ box.style.display='block'; document.getElementById('cv-name').textContent=cv.name; document.getElementById('cv-size').textContent=cv.size; }
+  else { box.style.display='none'; }
+}
+function uploadCV(input) {
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{ DB.set('cv',{name:file.name,size:fmtBytes(file.size),data:e.target.result}); renderCV(); toast('CV uploaded ✓'); };
+  reader.readAsDataURL(file);
+}
+function downloadCV(){ const cv=DB.get('cv'); if(!cv)return; const a=document.createElement('a'); a.href=cv.data; a.download=cv.name; a.click(); }
+function deleteCV(){ if(!confirm('Remove CV?'))return; DB.set('cv',null); renderCV(); toast('CV removed'); }
+function fmtBytes(b){ if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+
+// ── CONTACT ──
+function loadContact() {
+  const c=DB.get('contact');
+  document.getElementById('c-status').value=c.status||'open';
+  document.getElementById('c-email').value=c.email||'';
+  document.getElementById('c-phone').value=c.phone||'';
+  document.getElementById('c-location').value=c.location||'';
+  document.getElementById('c-linkedin').value=c.linkedin||'';
+  document.getElementById('c-github').value=c.github||'';
+  document.getElementById('c-dribbble').value=c.dribbble||'';
+  document.getElementById('c-behance').value=c.behance||'';
+}
+function saveContact() {
+  DB.set('contact',{ status:document.getElementById('c-status').value, email:document.getElementById('c-email').value.trim(), phone:document.getElementById('c-phone').value.trim(), location:document.getElementById('c-location').value.trim(), linkedin:document.getElementById('c-linkedin').value.trim(), github:document.getElementById('c-github').value.trim(), dribbble:document.getElementById('c-dribbble').value.trim(), behance:document.getElementById('c-behance').value.trim() });
+  // Also update settings status
+  const s=DB.get('settings'); s.status=document.getElementById('c-status').value; DB.set('settings',s);
+  toast('Contact info saved ✓');
+}
+
+// ── MESSAGES ──
+function renderMsgs() {
+  const data=DB.get('messages');
+  const el=document.getElementById('msg-list');
+  el.innerHTML=data.length===0
+    ? '<div style="color:var(--gray-light);font-size:.82rem">No messages yet</div>'
+    : data.map((m,i)=>`
+      <div class="msg-row ${m.read?'':'unread'}" onclick="openMsg(${i})">
+        <div style="display:flex;justify-content:space-between">
+          <div class="msg-name">${m.name}${m.read?'':' <span style="background:#ef4444;color:#fff;font-size:.6rem;padding:.1rem .35rem;border-radius:10px;vertical-align:middle">New</span>'}</div>
+          <div style="font-size:.7rem;color:var(--gray-light)">${m.time}</div>
+        </div>
+        <div class="msg-email">${m.email}</div>
+        <div class="msg-preview">${m.message}</div>
+      </div>`).join('');
+}
+
+function openMsg(i) {
+  const data=DB.get('messages'), m=data[i];
+  document.getElementById('md-name').textContent=m.name;
+  document.getElementById('md-email').textContent=m.email;
+  document.getElementById('md-time').textContent=m.time;
+  document.getElementById('md-body').textContent=m.message;
+  document.getElementById('md-reply').href=`mailto:${m.email}?subject=Re: Your message&body=Hi ${m.name.split(' ')[0]},`;
+  data[i].read=true; DB.set('messages',data); updateBadge(); renderMsgs(); openM('msgm');
+}
+
+function clearMsgs(){ if(!confirm('Clear all?'))return; DB.set('messages',[]); renderMsgs(); updateBadge(); toast('Messages cleared'); }
+function updateBadge(){ const n=DB.get('messages').filter(m=>!m.read).length; document.getElementById('mbadge').textContent=n>0?n:''; }
+
+// ── IMAGE UPLOAD ──
+function triggerFile(id){ document.getElementById(id).click(); }
+function previewFile(input, prevId, cls) {
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=document.getElementById(prevId); img.src=e.target.result; img.style.display='block'; img.className='img-preview '+cls;
+    if(cls==='banner') tmpBanner=e.target.result;
+    if(cls==='full')   tmpFull=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── MODAL HELPERS ──
+function openM(id){ document.getElementById(id).classList.add('open'); }
+function closeM(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── TOAST ──
+function toast(msg){ const t=document.getElementById('toast'); t.textContent='✓ '+msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
+</script>
+</body>
+</html>

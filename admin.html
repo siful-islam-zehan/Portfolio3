@@ -432,7 +432,11 @@ function doLogin() {
 }
 document.getElementById('lp').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 document.getElementById('lu').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-function doLogout() { document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; }
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('lerr').style.display = 'none';
+}
 
 // ── NAV ──
 function goto(page) {

@@ -423,10 +423,6 @@ function doLogin() {
   const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value.trim();
   if(u===CREDS.user && p===CREDS.pass) {
-    if (typeof DB === 'undefined') {
-      alert('data.js load hoy nai');
-      return;
-    }
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     DB.init(); initApp();
@@ -527,22 +523,36 @@ function setPrev(id, src, cls) {
 function saveProject() {
   const name = document.getElementById('pm-name').value.trim();
   if(!name){ alert('Project name is required'); return; }
+
   const data = DB.get('projects');
+  const tagValue = document.getElementById('pm-tag').value.trim();
   const obj = {
     id: editProjIdx!==null ? data[editProjIdx].id : Date.now(),
-    name, tag:    document.getElementById('pm-tag').value.trim(),
-    desc:         document.getElementById('pm-desc').value.trim(),
-    fulldesc:     document.getElementById('pm-fulldesc').value.trim(),
-    year:         document.getElementById('pm-year').value.trim(),
-    role:         document.getElementById('pm-role').value.trim(),
-    tools:        document.getElementById('pm-tools').value.trim(),
-    link:         document.getElementById('pm-link').value.trim(),
-    category:     document.getElementById('pm-tag').value.trim().split('·')[0].trim(),
-    banner: tmpBanner, full: tmpFull,
+    name,
+    tag: tagValue,
+    desc: document.getElementById('pm-desc').value.trim(),
+    fulldesc: document.getElementById('pm-fulldesc').value.trim(),
+    year: document.getElementById('pm-year').value.trim(),
+    role: document.getElementById('pm-role').value.trim(),
+    tools: document.getElementById('pm-tools').value.trim(),
+    link: document.getElementById('pm-link').value.trim(),
+    category: (tagValue.split('·')[0] || tagValue || 'Project').trim(),
+    banner: tmpBanner,
+    full: tmpFull,
   };
+
   if(editProjIdx!==null){ data[editProjIdx]=obj; } else { data.push(obj); }
-  DB.set('projects', data);
-  closeM('pm'); renderProjects(); renderDash(); toast(editProjIdx!==null?'Project updated ✓':'Project added ✓');
+
+  const saved = DB.set('projects', data);
+  if(!saved){
+    alert('Image is too large for browser storage. Please use a smaller JPG image.');
+    return;
+  }
+
+  closeM('pm');
+  renderProjects();
+  renderDash();
+  toast(editProjIdx!==null ? 'Project updated ✓' : 'Project added ✓');
 }
 
 function deleteProj(i) {
@@ -723,13 +733,57 @@ function updateBadge(){ const n=DB.get('messages').filter(m=>!m.read).length; do
 // ── IMAGE UPLOAD ──
 function triggerFile(id){ document.getElementById(id).click(); }
 function previewFile(input, prevId, cls) {
-  const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=document.getElementById(prevId); img.src=e.target.result; img.style.display='block'; img.className='img-preview '+cls;
-    if(cls==='banner') tmpBanner=e.target.result;
-    if(cls==='full')   tmpFull=e.target.result;
+  const file = input.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file.');
+    input.value = '';
+    return;
+  }
+
+  const maxWidth = cls === 'banner' ? 1200 : 1600;
+  const quality = 0.72;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const sourceImg = new Image();
+    sourceImg.onload = () => {
+      let width = sourceImg.width;
+      let height = sourceImg.height;
+
+      if (width > maxWidth) {
+        const ratio = maxWidth / width;
+        width = maxWidth;
+        height = Math.round(height * ratio);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(sourceImg, 0, 0, width, height);
+
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+
+      const img = document.getElementById(prevId);
+      img.src = compressed;
+      img.style.display = 'block';
+      img.className = 'img-preview ' + cls;
+
+      if (cls === 'banner') tmpBanner = compressed;
+      if (cls === 'full') tmpFull = compressed;
+
+      toast('Image ready to save ✓');
+    };
+
+    sourceImg.onerror = () => {
+      alert('Could not read the image file.');
+    };
+
+    sourceImg.src = e.target.result;
   };
+
   reader.readAsDataURL(file);
 }
 

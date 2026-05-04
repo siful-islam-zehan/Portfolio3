@@ -1,5 +1,6 @@
-// data.js — Firebase + Local settings store
+// data.js — Firebase Firestore + Local settings store
 // Use this file on GitHub Pages. No npm needed.
+// Images are uploaded through ImgBB from admin.html, then saved as URLs in Firestore.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -14,12 +15,6 @@ import {
   orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDzgHvTzASRtCI7IEpvxOzAjXA9x4vz2QM",
@@ -33,10 +28,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
-
 window.db = db;
-window.storage = storage;
 window.FB = {
   collection,
   addDoc,
@@ -46,10 +38,7 @@ window.FB = {
   deleteDoc,
   query,
   orderBy,
-  serverTimestamp,
-  ref,
-  uploadBytes,
-  getDownloadURL
+  serverTimestamp
 };
 
 window.getFirebaseProjects = async function () {

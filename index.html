@@ -249,6 +249,77 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   text-align:center;
 }
 
+
+
+/* FULLSCREEN PROJECT VIEWER */
+.project-viewer-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:#fff;
+  display:none;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.project-viewer-overlay.open{display:block}
+.project-viewer-topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding:0 4%;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--gray-border);
+}
+.project-viewer-name{
+  font-family:var(--font-display);
+  font-size:1.05rem;
+  font-weight:600;
+  color:var(--black);
+  line-height:1.2;
+}
+.project-viewer-actions{display:flex;align-items:center;gap:.65rem}
+.project-viewer-btn{
+  border:1px solid var(--gray-border);
+  background:#fff;
+  color:var(--black);
+  padding:.55rem 1rem;
+  border-radius:999px;
+  font-family:var(--font-body);
+  font-size:.8rem;
+  font-weight:500;
+  cursor:pointer;
+  transition:all var(--t);
+  text-decoration:none;
+}
+.project-viewer-btn:hover{background:var(--black);border-color:var(--black);color:#fff}
+.project-viewer-body{
+  width:100%;
+  min-height:calc(100vh - 64px);
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+.project-viewer-img{
+  width:100%;
+  max-width:none;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  image-rendering:auto;
+}
+@media(max-width:768px){
+  .project-viewer-topbar{height:auto;min-height:64px;padding:.75rem 4%;align-items:flex-start;flex-direction:column}
+  .project-viewer-actions{width:100%;justify-content:space-between}
+  .project-viewer-btn{font-size:.76rem;padding:.48rem .82rem}
+}
+
 /* EXPERIENCE & EDUCATION TIMELINE */
 .timeline-section{padding:100px 5% 0;max-width:1300px;margin:0 auto}
 .timeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-top:3.5rem}
@@ -444,7 +515,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
 
         <div class="preview-read-hint">
           <span class="preview-read-dot"></span>
-          <span>Scroll full design</span>
+          <span>Click for full website view</span>
         </div>
 
         <div class="preview-scroll-indicator" id="preview-scroll-indicator">
@@ -475,13 +546,28 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
         <div class="preview-actions">
           <button class="preview-btn" onclick="prevProject()">← Prev</button>
           <div class="preview-counter" id="preview-counter">01 / 01</div>
-          <button class="preview-btn" onclick="event.stopPropagation(); openFullProjectImage()">Open Full ↗</button>
+          <button class="preview-btn" onclick="event.stopPropagation(); openFullProjectImage()">Full View ↗</button>
           <button class="preview-btn preview-btn-dark" onclick="nextProject()">Next →</button>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+
+
+<div class="project-viewer-overlay" id="project-viewer" aria-hidden="true">
+  <div class="project-viewer-topbar">
+    <div class="project-viewer-name" id="project-viewer-title">Project Preview</div>
+    <div class="project-viewer-actions">
+      <a href="#" target="_blank" rel="noopener noreferrer" class="project-viewer-btn" id="project-viewer-open">Open original ↗</a>
+      <button class="project-viewer-btn" type="button" onclick="closeProjectViewer()">Close ✕</button>
+    </div>
+  </div>
+  <div class="project-viewer-body">
+    <img id="project-viewer-img" class="project-viewer-img" src="" alt="Full project preview">
+  </div>
+</div>
 
 <div class="timeline-section" id="experience">
   <div class="section-label">Background</div>
@@ -628,7 +714,7 @@ function selectProject(idx, silent = false) {
   const previewCard = document.getElementById('preview-card');
 
   previewCard.scrollTop = 0;
-  const fullSource = p.full || p.image || p.banner || '';
+  const fullSource = p.image || p.full || p.banner || '';
 
   if (fullSource) {
     bannerImg.src = fullSource;
@@ -666,15 +752,39 @@ function openFullProjectImage() {
   if (!allProjects || !allProjects.length) return;
 
   const project = allProjects[activeProjectIdx];
-  const imageUrl = project.full || project.image || project.banner || '';
+  const imageUrl = project.image || project.full || project.banner || '';
 
   if (!imageUrl) {
     alert('No full image available for this project.');
     return;
   }
 
-  window.open(imageUrl, '_blank', 'noopener,noreferrer');
+  const viewer = document.getElementById('project-viewer');
+  const img = document.getElementById('project-viewer-img');
+  const title = document.getElementById('project-viewer-title');
+  const openBtn = document.getElementById('project-viewer-open');
+
+  title.textContent = project.name || 'Project Preview';
+  img.src = imageUrl;
+  img.alt = project.name || 'Full project preview';
+  openBtn.href = imageUrl;
+  viewer.classList.add('open');
+  viewer.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
 }
+
+function closeProjectViewer() {
+  const viewer = document.getElementById('project-viewer');
+  const img = document.getElementById('project-viewer-img');
+  viewer.classList.remove('open');
+  viewer.setAttribute('aria-hidden', 'true');
+  img.src = '';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeProjectViewer();
+});
 
 function prevProject() {
   if (!allProjects || !allProjects.length) return;

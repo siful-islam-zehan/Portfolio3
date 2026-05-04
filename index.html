@@ -162,11 +162,13 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   width:100%;
   height:auto;
   display:none;
+  object-fit:contain;
+  image-rendering:auto;
   transform-origin:top center;
   transition:transform .55s cubic-bezier(.25,.46,.45,.94), filter .35s ease;
   will-change:transform;
 }
-.preview-card:hover .preview-banner{transform:scale(1.028);filter:contrast(1.02) saturate(1.02)}
+.preview-card:hover .preview-banner{transform:none;filter:contrast(1.03) saturate(1.03)}
 .preview-placeholder-wrap{
   min-height:680px;
   width:100%;
@@ -626,7 +628,7 @@ function selectProject(idx, silent = false) {
   const previewCard = document.getElementById('preview-card');
 
   previewCard.scrollTop = 0;
-  const fullSource = p.full || p.banner || '';
+  const fullSource = p.full || p.image || p.banner || '';
 
   if (fullSource) {
     bannerImg.src = fullSource;
@@ -664,7 +666,7 @@ function openFullProjectImage() {
   if (!allProjects || !allProjects.length) return;
 
   const project = allProjects[activeProjectIdx];
-  const imageUrl = project.full || project.banner || '';
+  const imageUrl = project.full || project.image || project.banner || '';
 
   if (!imageUrl) {
     alert('No full image available for this project.');

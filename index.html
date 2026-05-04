@@ -550,7 +550,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
   </div>
 </footer>
 
-<script src="data.js"></script>
+<script type="module" src="data.js"></script>
 <script>
 const BG_COLORS = ['#f0f4ff','#f0fff8','#fff8f0','#fff0f4','#f5f0ff','#fafaf0','#e8f4ff'];
 let activeProjectIdx = 0;
@@ -572,8 +572,8 @@ function applySettings() {
   if (c.behance) document.getElementById('sl-behance').href = c.behance;
 }
 
-function renderProjects() {
-  allProjects = DB.get('projects');
+async function renderProjects() {
+  allProjects = await getFirebaseProjects();
   const list = document.getElementById('projects-list');
 
   if (!allProjects || allProjects.length === 0) {
@@ -601,7 +601,6 @@ function renderProjects() {
 }
 
 function selectProject(idx, silent = false) {
-  allProjects = DB.get('projects');
   if (!allProjects || !allProjects.length) return;
 
   activeProjectIdx = idx;
@@ -648,14 +647,12 @@ function selectProject(idx, silent = false) {
 }
 
 function prevProject() {
-  allProjects = DB.get('projects');
   if (!allProjects || !allProjects.length) return;
   activeProjectIdx = (activeProjectIdx - 1 + allProjects.length) % allProjects.length;
   selectProject(activeProjectIdx);
 }
 
 function nextProject() {
-  allProjects = DB.get('projects');
   if (!allProjects || !allProjects.length) return;
   activeProjectIdx = (activeProjectIdx + 1) % allProjects.length;
   selectProject(activeProjectIdx);
@@ -782,21 +779,21 @@ function initReveal() {
   });
 }
 
-function refreshPortfolio() {
+async function refreshPortfolio() {
   applySettings();
-  renderProjects();
+  await renderProjects();
   renderExperience();
   renderEducation();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   if (typeof DB === 'undefined') {
     console.error('data.js failed to load');
     return;
   }
 
   DB.init();
-  refreshPortfolio();
+  await refreshPortfolio();
   initReveal();
 
   const previewCard = document.getElementById('preview-card');
@@ -814,14 +811,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', updatePreviewScrollIndicator);
 });
 
-window.addEventListener('pf-data-updated', () => {
-  refreshPortfolio();
+window.addEventListener('pf-data-updated', async () => {
+  await refreshPortfolio();
   setTimeout(updatePreviewScrollIndicator, 60);
 });
 
-window.addEventListener('storage', (event) => {
+window.addEventListener('storage', async (event) => {
   if (!event.key || Object.values(DB.KEYS).includes(event.key)) {
-    refreshPortfolio();
+    await refreshPortfolio();
     setTimeout(updatePreviewScrollIndicator, 60);
   }
 });

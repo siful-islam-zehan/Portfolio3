@@ -249,7 +249,13 @@ tr:hover td{background:var(--gray-faint)}
               <input type="file" id="cv-input" accept=".pdf" style="display:none" onchange="uploadCV(this)">
             </div>
           </div>
-          <div id="cv-box" style="display:none">
+          <div class="fg">
+            <label>Live CV PDF URL</label>
+            <input id="cv-url-input" placeholder="Paste Google Drive / GitHub / direct PDF link here">
+            <div class="fg-hint">Firebase Storage is not used. Upload PDF somewhere public and paste the link here.</div>
+          </div>
+          <button class="btn btn-primary" onclick="saveCVLink()">Save CV Link</button>
+          <div id="cv-box" style="display:none;margin-top:1rem">
             <label class="fg" style="gap:0;margin-bottom:.5rem"><span style="font-size:.75rem;font-weight:500;color:var(--gray-dark)">Current CV</span></label>
             <div class="cv-box">
               <div class="cv-info"><span style="font-size:1.4rem">📄</span><div><div style="font-weight:500;font-size:.85rem" id="cv-name">—</div><div style="font-size:.72rem;color:var(--gray-light)" id="cv-size">—</div></div></div>
@@ -419,6 +425,8 @@ let editProjIdx = null, editExpIdx = null, editEduIdx = null;
 let tmpBanner = null, tmpFull = null;
 let tmpBannerFile = null, tmpFullFile = null;
 let firebaseProjects = [];
+let firebaseExperience = [];
+let firebaseEducation = [];
 
 // ── LOGIN ──
 function doLogin() {
@@ -452,24 +460,23 @@ async function initApp() { await renderDash(); updateBadge(); }
 // ── DASHBOARD ──
 async function renderDash() {
   const projs = await getFirebaseProjects();
-  const exps  = DB.get('experience');
+  const exps  = await getFirebaseCollection('experience');
   const msgs  = DB.get('messages');
-  const cv    = DB.get('cv');
+  const site  = await getSiteData();
+  const cv    = site.cv;
   document.getElementById('s-projects').textContent = projs.length;
   document.getElementById('s-exp').textContent = exps.length;
   document.getElementById('s-msgs').textContent = msgs.length;
-  document.getElementById('s-cv').textContent = cv ? '✅ Uploaded' : '❌ None';
-  document.getElementById('s-cv').style.color = cv ? '#15803d' : '#ef4444';
+  document.getElementById('s-cv').textContent = cv && cv.url ? '✅ Linked' : '❌ None';
+  document.getElementById('s-cv').style.color = cv && cv.url ? '#15803d' : '#ef4444';
 
-  // Recent projects table
   const dp = document.getElementById('dash-projects');
   dp.innerHTML = projs.length===0
     ? '<div style="padding:1.5rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet</div>'
-    : '<table><thead><tr><th>Project</th><th>Category</th><th>Year</th></tr></thead><tbody>'+
-      projs.slice(0,5).map(p=>`<tr><td><strong>${p.name}</strong></td><td>${p.tag}</td><td>${p.year}</td></tr>`).join('')+
+    : '<table><thead><tr><th>Project</th><th>Category</th><th>Year</th></tr></thead><tbody>'+ 
+      projs.slice(0,5).map(p=>`<tr><td><strong>${p.name || ''}</strong></td><td>${p.tag || ''}</td><td>${p.year || ''}</td></tr>`).join('')+
       '</tbody></table>';
 
-  // Recent messages
   const dm = document.getElementById('dash-msgs');
   dm.innerHTML = msgs.length===0
     ? '<div style="color:var(--gray-light);font-size:.82rem">No messages yet</div>'
@@ -618,20 +625,21 @@ async function deleteProj(i) {
 }
 
 // ── EXPERIENCE ──
-function renderExp() {
-  const data = DB.get('experience');
+async function renderExp() {
+  firebaseExperience = await getFirebaseCollection('experience');
+  const data = firebaseExperience;
   const el = document.getElementById('exp-list');
   el.innerHTML = data.length===0
     ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No experience yet</div>'
     : data.map((e,i)=>`
       <div class="exp-row">
         <div>
-          <div class="exp-company">${e.company}</div>
-          <div class="exp-role-text">${e.role} · <span class="badge">${e.type}</span></div>
+          <div class="exp-company">${e.company || ''}</div>
+          <div class="exp-role-text">${e.role || ''} · <span class="badge">${e.type || ''}</span></div>
           ${e.desc?`<div style="font-size:.76rem;color:var(--gray-mid);margin-top:.35rem;max-width:420px">${e.desc}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
-          <div class="exp-period">${e.start} — ${e.end}</div>
+          <div class="exp-period">${e.start || ''} — ${e.end || ''}</div>
           <div style="display:flex;gap:.4rem">
             <button class="btn btn-outline btn-sm" onclick="openExpModal(${i})">✏</button>
             <button class="btn btn-danger btn-sm" onclick="deleteExp(${i})">✕</button>
@@ -644,10 +652,10 @@ function openExpModal(idx) {
   editExpIdx = idx!==undefined ? idx : null;
   document.getElementById('em-title').textContent = idx!==undefined?'Edit Experience':'Add Experience';
   if(idx!==undefined) {
-    const e = DB.get('experience')[idx];
-    document.getElementById('em-role').value=e.role; document.getElementById('em-company').value=e.company;
-    document.getElementById('em-start').value=e.start; document.getElementById('em-end').value=e.end;
-    document.getElementById('em-type').value=e.type; document.getElementById('em-desc').value=e.desc||'';
+    const e = firebaseExperience[idx];
+    document.getElementById('em-role').value=e.role || ''; document.getElementById('em-company').value=e.company || '';
+    document.getElementById('em-start').value=e.start || ''; document.getElementById('em-end').value=e.end || '';
+    document.getElementById('em-type').value=e.type || 'Full-time'; document.getElementById('em-desc').value=e.desc||'';
   } else {
     ['em-role','em-company','em-start','em-end','em-desc'].forEach(f=>document.getElementById(f).value='');
     document.getElementById('em-type').value='Full-time';
@@ -655,35 +663,52 @@ function openExpModal(idx) {
   openM('em');
 }
 
-function saveExp() {
+async function saveExp() {
   const role=document.getElementById('em-role').value.trim(), company=document.getElementById('em-company').value.trim();
   if(!role||!company){ alert('Role and company required'); return; }
-  const data=DB.get('experience');
-  const obj={id:editExpIdx!==null?data[editExpIdx].id:Date.now(),role,company,start:document.getElementById('em-start').value.trim(),end:document.getElementById('em-end').value.trim(),type:document.getElementById('em-type').value,desc:document.getElementById('em-desc').value.trim()};
-  if(editExpIdx!==null){data[editExpIdx]=obj;}else{data.push(obj);}
-  DB.set('experience',data); closeM('em'); renderExp(); renderDash(); toast('Experience saved ✓');
+  const obj={
+    role, company,
+    start:document.getElementById('em-start').value.trim(),
+    end:document.getElementById('em-end').value.trim(),
+    type:document.getElementById('em-type').value,
+    desc:document.getElementById('em-desc').value.trim(),
+    updatedAt: window.FB.serverTimestamp()
+  };
+  try {
+    if(editExpIdx!==null){
+      await window.FB.updateDoc(window.FB.doc(window.db, 'experience', firebaseExperience[editExpIdx].firebaseId), obj);
+    } else {
+      obj.createdAt = window.FB.serverTimestamp();
+      await window.FB.addDoc(window.FB.collection(window.db, 'experience'), obj);
+    }
+    closeM('em'); await renderExp(); await renderDash(); toast('Experience saved ✓');
+  } catch(err) { console.error(err); alert('Experience save failed: ' + (err.message || err)); }
 }
 
-function deleteExp(i) {
+async function deleteExp(i) {
   if(!confirm('Delete?')) return;
-  const data=DB.get('experience'); data.splice(i,1); DB.set('experience',data); renderExp(); toast('Deleted');
+  try {
+    await window.FB.deleteDoc(window.FB.doc(window.db, 'experience', firebaseExperience[i].firebaseId));
+    await renderExp(); await renderDash(); toast('Deleted');
+  } catch(err) { console.error(err); alert('Delete failed: ' + (err.message || err)); }
 }
 
 // ── EDUCATION ──
-function renderEdu() {
-  const data = DB.get('education');
+async function renderEdu() {
+  firebaseEducation = await getFirebaseCollection('education');
+  const data = firebaseEducation;
   const el = document.getElementById('edu-list');
   el.innerHTML = data.length===0
     ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No education yet</div>'
     : data.map((e,i)=>`
       <div class="exp-row">
         <div>
-          <div class="exp-company">${e.institution}</div>
-          <div class="exp-role-text">${e.degree}</div>
+          <div class="exp-company">${e.institution || ''}</div>
+          <div class="exp-role-text">${e.degree || ''}</div>
           ${e.desc?`<div style="font-size:.76rem;color:var(--gray-mid);margin-top:.35rem;max-width:420px">${e.desc}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
-          <div class="exp-period">${e.year}</div>
+          <div class="exp-period">${e.year || ''}</div>
           <div style="display:flex;gap:.4rem">
             <button class="btn btn-outline btn-sm" onclick="openEduModal(${i})">✏</button>
             <button class="btn btn-danger btn-sm" onclick="deleteEdu(${i})">✕</button>
@@ -696,50 +721,90 @@ function openEduModal(idx) {
   editEduIdx = idx!==undefined?idx:null;
   document.getElementById('dum-title').textContent=idx!==undefined?'Edit Education':'Add Education';
   if(idx!==undefined){
-    const e=DB.get('education')[idx];
-    document.getElementById('dum-degree').value=e.degree; document.getElementById('dum-inst').value=e.institution;
-    document.getElementById('dum-year').value=e.year; document.getElementById('dum-desc').value=e.desc||'';
+    const e=firebaseEducation[idx];
+    document.getElementById('dum-degree').value=e.degree || ''; document.getElementById('dum-inst').value=e.institution || '';
+    document.getElementById('dum-year').value=e.year || ''; document.getElementById('dum-desc').value=e.desc||'';
   } else {
     ['dum-degree','dum-inst','dum-year','dum-desc'].forEach(f=>document.getElementById(f).value='');
   }
   openM('dum');
 }
 
-function saveEdu() {
+async function saveEdu() {
   const degree=document.getElementById('dum-degree').value.trim(), inst=document.getElementById('dum-inst').value.trim();
   if(!degree||!inst){alert('Degree and institution required');return;}
-  const data=DB.get('education');
-  const obj={id:editEduIdx!==null?data[editEduIdx].id:Date.now(),degree,institution:inst,year:document.getElementById('dum-year').value.trim(),desc:document.getElementById('dum-desc').value.trim()};
-  if(editEduIdx!==null){data[editEduIdx]=obj;}else{data.push(obj);}
-  DB.set('education',data); closeM('dum'); renderEdu(); toast('Education saved ✓');
+  const obj={
+    degree,
+    institution:inst,
+    year:document.getElementById('dum-year').value.trim(),
+    desc:document.getElementById('dum-desc').value.trim(),
+    updatedAt: window.FB.serverTimestamp()
+  };
+  try {
+    if(editEduIdx!==null){
+      await window.FB.updateDoc(window.FB.doc(window.db, 'education', firebaseEducation[editEduIdx].firebaseId), obj);
+    } else {
+      obj.createdAt = window.FB.serverTimestamp();
+      await window.FB.addDoc(window.FB.collection(window.db, 'education'), obj);
+    }
+    closeM('dum'); await renderEdu(); toast('Education saved ✓');
+  } catch(err) { console.error(err); alert('Education save failed: ' + (err.message || err)); }
 }
 
-function deleteEdu(i) {
+async function deleteEdu(i) {
   if(!confirm('Delete?'))return;
-  const data=DB.get('education'); data.splice(i,1); DB.set('education',data); renderEdu(); toast('Deleted');
+  try {
+    await window.FB.deleteDoc(window.FB.doc(window.db, 'education', firebaseEducation[i].firebaseId));
+    await renderEdu(); toast('Deleted');
+  } catch(err) { console.error(err); alert('Delete failed: ' + (err.message || err)); }
 }
 
 // ── CV ──
-function renderCV() {
-  const cv=DB.get('cv');
+async function renderCV() {
+  const site = await getSiteData();
+  const cv = site.cv;
   const box=document.getElementById('cv-box');
-  if(cv){ box.style.display='block'; document.getElementById('cv-name').textContent=cv.name; document.getElementById('cv-size').textContent=cv.size; }
-  else { box.style.display='none'; }
+  const input=document.getElementById('cv-url-input');
+  if(input) input.value = cv?.url || '';
+  if(cv && cv.url){
+    box.style.display='block';
+    document.getElementById('cv-name').textContent=cv.name || 'CV / Resume';
+    document.getElementById('cv-size').textContent=cv.url;
+  } else { box.style.display='none'; }
 }
+
 function uploadCV(input) {
-  const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{ DB.set('cv',{name:file.name,size:fmtBytes(file.size),data:e.target.result}); renderCV(); toast('CV uploaded ✓'); };
-  reader.readAsDataURL(file);
+  alert('Direct PDF upload needs paid file storage. Please upload your PDF to Google Drive/GitHub and paste the public PDF link in “Live CV PDF URL”.');
+  input.value = '';
 }
-function downloadCV(){ const cv=DB.get('cv'); if(!cv)return; const a=document.createElement('a'); a.href=cv.data; a.download=cv.name; a.click(); }
-function deleteCV(){ if(!confirm('Remove CV?'))return; DB.set('cv',null); renderCV(); toast('CV removed'); }
+
+async function saveCVLink() {
+  const url = document.getElementById('cv-url-input').value.trim();
+  if(!url){ alert('Paste a CV PDF URL first'); return; }
+  try {
+    await saveSiteData({ cv: { name: 'Siful Islam Zehan CV', url } });
+    await renderCV(); await renderDash(); toast('CV link saved ✓');
+  } catch(err) { console.error(err); alert('CV save failed: ' + (err.message || err)); }
+}
+
+async function downloadCV(){
+  const site = await getSiteData();
+  if(site.cv?.url) window.open(site.cv.url, '_blank');
+}
+
+async function deleteCV(){
+  if(!confirm('Remove CV?'))return;
+  await saveSiteData({ cv: null });
+  await renderCV(); await renderDash(); toast('CV removed');
+}
 function fmtBytes(b){ if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 
 // ── CONTACT ──
-function loadContact() {
-  const c=DB.get('contact');
-  document.getElementById('c-status').value=c.status||'open';
+async function loadContact() {
+  const site = await getSiteData();
+  const c = site.contact;
+  const s = site.settings;
+  document.getElementById('c-status').value=s.status || c.status || 'open';
   document.getElementById('c-email').value=c.email||'';
   document.getElementById('c-phone').value=c.phone||'';
   document.getElementById('c-location').value=c.location||'';
@@ -748,11 +813,22 @@ function loadContact() {
   document.getElementById('c-dribbble').value=c.dribbble||'';
   document.getElementById('c-behance').value=c.behance||'';
 }
-function saveContact() {
-  DB.set('contact',{ status:document.getElementById('c-status').value, email:document.getElementById('c-email').value.trim(), phone:document.getElementById('c-phone').value.trim(), location:document.getElementById('c-location').value.trim(), linkedin:document.getElementById('c-linkedin').value.trim(), github:document.getElementById('c-github').value.trim(), dribbble:document.getElementById('c-dribbble').value.trim(), behance:document.getElementById('c-behance').value.trim() });
-  // Also update settings status
-  const s=DB.get('settings'); s.status=document.getElementById('c-status').value; DB.set('settings',s);
-  toast('Contact info saved ✓');
+async function saveContact() {
+  const status=document.getElementById('c-status').value;
+  const contact={
+    email:document.getElementById('c-email').value.trim(),
+    phone:document.getElementById('c-phone').value.trim(),
+    location:document.getElementById('c-location').value.trim(),
+    linkedin:document.getElementById('c-linkedin').value.trim(),
+    github:document.getElementById('c-github').value.trim(),
+    dribbble:document.getElementById('c-dribbble').value.trim(),
+    behance:document.getElementById('c-behance').value.trim()
+  };
+  try {
+    const old = await getSiteData();
+    await saveSiteData({ contact, settings: { ...old.settings, status } });
+    toast('Contact info saved live ✓');
+  } catch(err) { console.error(err); alert('Contact save failed: ' + (err.message || err)); }
 }
 
 // ── MESSAGES ──

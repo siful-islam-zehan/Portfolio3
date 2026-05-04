@@ -129,6 +129,7 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   box-shadow:var(--shadow-card);
 }
 .preview-card:hover{box-shadow:0 10px 34px rgba(0,0,0,.08);transform:translateY(-2px)}
+.preview-card.has-image{cursor:zoom-in}
 
 .preview-top-fade{
   position:absolute;
@@ -356,6 +357,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
       <div class="hero-btns">
         <a href="#projects" class="btn-primary">View Projects ↓</a>
         <a href="#contact" class="btn-outline">Contact Me</a>
+        <a href="#" class="btn-outline" id="cv-link" style="display:none" target="_blank">Download CV</a>
       </div>
     </div>
     <div class="hero-visual">
@@ -447,7 +449,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
           <div class="preview-scroll-thumb" id="preview-scroll-thumb"></div>
         </div>
 
-        <div class="preview-card" id="preview-card">
+        <div class="preview-card" id="preview-card" onclick="openFullProjectImage()" title="Click to open full image">
           <div class="preview-mockup" id="preview-mockup">
             <img class="preview-banner" id="preview-banner" src="" alt="">
             <div id="preview-placeholder" class="preview-placeholder-wrap">
@@ -471,6 +473,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
         <div class="preview-actions">
           <button class="preview-btn" onclick="prevProject()">← Prev</button>
           <div class="preview-counter" id="preview-counter">01 / 01</div>
+          <button class="preview-btn" onclick="event.stopPropagation(); openFullProjectImage()">Open Full ↗</button>
           <button class="preview-btn preview-btn-dark" onclick="nextProject()">Next →</button>
         </div>
       </div>
@@ -556,9 +559,11 @@ const BG_COLORS = ['#f0f4ff','#f0fff8','#fff8f0','#fff0f4','#f5f0ff','#fafaf0','
 let activeProjectIdx = 0;
 let allProjects = [];
 
-function applySettings() {
-  const s = DB.get('settings');
-  const c = DB.get('contact');
+async function applySettings() {
+  const site = await getSiteData();
+  const s = site.settings;
+  const c = site.contact;
+  const cv = site.cv;
   const statusMap = { open:'Open to opportunities', freelance:'Available for freelance', busy:'Not available right now' };
 
   document.getElementById('status-label').textContent = statusMap[s.status] || 'Open to opportunities';
@@ -570,6 +575,12 @@ function applySettings() {
   if (c.github) document.getElementById('sl-github').href = c.github;
   if (c.dribbble) document.getElementById('sl-dribbble').href = c.dribbble;
   if (c.behance) document.getElementById('sl-behance').href = c.behance;
+
+  const cvLink = document.getElementById('cv-link');
+  if (cvLink && cv && cv.url) {
+    cvLink.href = cv.url;
+    cvLink.style.display = 'inline-flex';
+  }
 }
 
 async function renderProjects() {
@@ -621,9 +632,11 @@ function selectProject(idx, silent = false) {
     bannerImg.src = fullSource;
     bannerImg.style.display = 'block';
     placeholder.style.display = 'none';
+    previewCard.classList.add('has-image');
   } else {
     bannerImg.style.display = 'none';
     placeholder.style.display = 'flex';
+    previewCard.classList.remove('has-image');
     document.getElementById('preview-label').textContent = p.name || 'Project';
   }
 
@@ -644,6 +657,21 @@ function selectProject(idx, silent = false) {
       previewCard.style.transform = 'translateY(0)';
     }, 40);
   }
+}
+
+
+function openFullProjectImage() {
+  if (!allProjects || !allProjects.length) return;
+
+  const project = allProjects[activeProjectIdx];
+  const imageUrl = project.full || project.banner || '';
+
+  if (!imageUrl) {
+    alert('No full image available for this project.');
+    return;
+  }
+
+  window.open(imageUrl, '_blank', 'noopener,noreferrer');
 }
 
 function prevProject() {
@@ -686,9 +714,9 @@ function updatePreviewScrollIndicator() {
   thumb.style.transform = `translateY(${top}px)`;
 }
 
-function renderExperience() {
+async function renderExperience() {
   const list = document.getElementById('exp-timeline');
-  const data = DB.get('experience');
+  const data = await getFirebaseCollection('experience');
   if (!data || data.length === 0) {
     list.innerHTML = '<div class="timeline-empty">No experience added yet.</div>';
     return;
@@ -707,9 +735,9 @@ function renderExperience() {
   `).join('');
 }
 
-function renderEducation() {
+async async function renderEducation() {
   const list = document.getElementById('edu-timeline');
-  const data = DB.get('education');
+  const data = await getFirebaseCollection('education');
   if (!data || data.length === 0) {
     list.innerHTML = '<div class="timeline-empty">No education added yet.</div>';
     return;
@@ -780,10 +808,10 @@ function initReveal() {
 }
 
 async function refreshPortfolio() {
-  applySettings();
+  await applySettings();
   await renderProjects();
-  renderExperience();
-  renderEducation();
+  await renderExperience();
+  await renderEducation();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

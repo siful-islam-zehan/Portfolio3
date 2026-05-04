@@ -414,7 +414,7 @@ tr:hover td{background:var(--gray-faint)}
 <div class="toast" id="toast"></div>
 
 <!-- Shared data store -->
-<script type="module" src="data.js"></script>
+<script type="module" src="data.js?v=5"></script>
 <script>
 // ═══════════════════════════════════════
 //  ADMIN  —  ImgBB image upload + Firebase Firestore projects + local settings
@@ -459,10 +459,10 @@ async function initApp() { await renderDash(); updateBadge(); }
 
 // ── DASHBOARD ──
 async function renderDash() {
-  const projs = await getFirebaseProjects();
-  const exps  = await getFirebaseCollection('experience');
+  const projs = await window.getFirebaseProjects();
+  const exps  = await window.getFirebaseCollection('experience');
   const msgs  = DB.get('messages');
-  const site  = await getSiteData();
+  const site  = await window.getSiteData();
   const cv    = site.cv;
   document.getElementById('s-projects').textContent = projs.length;
   document.getElementById('s-exp').textContent = exps.length;
@@ -490,7 +490,7 @@ async function renderDash() {
 
 // ── PROJECTS ──
 async function renderProjects() {
-  firebaseProjects = await getFirebaseProjects();
+  firebaseProjects = await window.getFirebaseProjects();
   const el = document.getElementById('proj-list');
   el.innerHTML = firebaseProjects.length===0
     ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet. Click "+ Add Project"</div>'
@@ -626,7 +626,7 @@ async function deleteProj(i) {
 
 // ── EXPERIENCE ──
 async function renderExp() {
-  firebaseExperience = await getFirebaseCollection('experience');
+  firebaseExperience = await window.getFirebaseCollection('experience');
   const data = firebaseExperience;
   const el = document.getElementById('exp-list');
   el.innerHTML = data.length===0
@@ -695,7 +695,7 @@ async function deleteExp(i) {
 
 // ── EDUCATION ──
 async function renderEdu() {
-  firebaseEducation = await getFirebaseCollection('education');
+  firebaseEducation = await window.getFirebaseCollection('education');
   const data = firebaseEducation;
   const el = document.getElementById('edu-list');
   el.innerHTML = data.length===0
@@ -761,7 +761,7 @@ async function deleteEdu(i) {
 
 // ── CV ──
 async function renderCV() {
-  const site = await getSiteData();
+  const site = await window.getSiteData();
   const cv = site.cv;
   const box=document.getElementById('cv-box');
   const input=document.getElementById('cv-url-input');
@@ -782,26 +782,26 @@ async function saveCVLink() {
   const url = document.getElementById('cv-url-input').value.trim();
   if(!url){ alert('Paste a CV PDF URL first'); return; }
   try {
-    await saveSiteData({ cv: { name: 'Siful Islam Zehan CV', url } });
+    await window.saveSiteData({ cv: { name: 'Siful Islam Zehan CV', url } });
     await renderCV(); await renderDash(); toast('CV link saved ✓');
   } catch(err) { console.error(err); alert('CV save failed: ' + (err.message || err)); }
 }
 
 async function downloadCV(){
-  const site = await getSiteData();
+  const site = await window.getSiteData();
   if(site.cv?.url) window.open(site.cv.url, '_blank');
 }
 
 async function deleteCV(){
   if(!confirm('Remove CV?'))return;
-  await saveSiteData({ cv: null });
+  await window.saveSiteData({ cv: null });
   await renderCV(); await renderDash(); toast('CV removed');
 }
 function fmtBytes(b){ if(b<1024)return b+' B'; if(b<1048576)return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 
 // ── CONTACT ──
 async function loadContact() {
-  const site = await getSiteData();
+  const site = await window.getSiteData();
   const c = site.contact;
   const s = site.settings;
   document.getElementById('c-status').value=s.status || c.status || 'open';
@@ -825,8 +825,8 @@ async function saveContact() {
     behance:document.getElementById('c-behance').value.trim()
   };
   try {
-    const old = await getSiteData();
-    await saveSiteData({ contact, settings: { ...old.settings, status } });
+    const old = await window.getSiteData();
+    await window.saveSiteData({ contact, settings: { ...old.settings, status } });
     toast('Contact info saved live ✓');
   } catch(err) { console.error(err); alert('Contact save failed: ' + (err.message || err)); }
 }

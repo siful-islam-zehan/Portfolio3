@@ -327,19 +327,10 @@ tr:hover td{background:var(--gray-faint)}
       <div class="fg"><label>Tools Used</label><input id="pm-tools" placeholder="Figma · React · Tailwind CSS"></div>
       <div class="fg"><label>Project Link (optional)</label><input id="pm-link" placeholder="https://..."></div>
       <div class="fg">
-        <label>Banner Image <span style="color:var(--gray-light);font-weight:400">(thumbnail — shown in preview)</span></label>
-        <div class="img-drop" onclick="triggerFile('pm-banner-input')">
-          <div class="img-drop-icon">🖼</div>
-          <div class="img-drop-label">Click to upload · Recommended 800×450px</div>
-          <input type="file" id="pm-banner-input" accept="image/*" style="display:none" onchange="previewFile(this,'pm-banner-prev','banner')">
-        </div>
-        <img id="pm-banner-prev" class="img-preview banner" alt="Banner">
-      </div>
-      <div class="fg">
-        <label>Full Project Image <span style="color:var(--gray-light);font-weight:400">(larger — shown in project popup)</span></label>
+        <label>Website Image <span style="color:var(--gray-light);font-weight:400">(main project preview — upload high quality 1920px+ image)</span></label>
         <div class="img-drop" onclick="triggerFile('pm-full-input')">
           <div class="img-drop-icon">🗂</div>
-          <div class="img-drop-label">Click to upload · Recommended 1200×800px</div>
+          <div class="img-drop-label">Click to upload · Recommended 1920px+ width for clear preview</div>
           <input type="file" id="pm-full-input" accept="image/*" style="display:none" onchange="previewFile(this,'pm-full-prev','full')">
         </div>
         <img id="pm-full-prev" class="img-preview full" alt="Full">
@@ -422,8 +413,8 @@ tr:hover td{background:var(--gray-faint)}
 
 const CREDS = { user:'admin', pass:'zehan2025' };
 let editProjIdx = null, editExpIdx = null, editEduIdx = null;
-let tmpBanner = null, tmpFull = null;
-let tmpBannerFile = null, tmpFullFile = null;
+let tmpFull = null;
+let tmpFullFile = null;
 let firebaseProjects = [];
 let firebaseExperience = [];
 let firebaseEducation = [];
@@ -496,7 +487,7 @@ async function renderProjects() {
     ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet. Click "+ Add Project"</div>'
     : firebaseProjects.map((p,i)=>`
       <div class="project-row">
-        <div class="thumb">${p.banner?`<img src="${p.banner}" alt="">`:'🖼'}</div>
+        <div class="thumb">${(p.full || p.image || p.banner)?`<img src="${p.full || p.image || p.banner}" alt="">`:'🖼'}</div>
         <div><div class="row-name">${p.name || ''}</div><div class="row-sub">${p.tag || ''} · ${p.year || ''}</div></div>
         <div class="row-actions">
           <button class="btn btn-outline btn-sm" onclick="openProjModal(${i})">✏ Edit</button>
@@ -507,18 +498,17 @@ async function renderProjects() {
 
 function openProjModal(idx) {
   editProjIdx = idx!==undefined ? idx : null;
-  tmpBanner = null; tmpFull = null; tmpBannerFile = null; tmpFullFile = null;
+  tmpFull = null; tmpFullFile = null;
   document.getElementById('pm-title').textContent = idx!==undefined ? 'Edit Project' : 'Add Project';
   const fields = ['pm-name','pm-tag','pm-desc','pm-fulldesc','pm-year','pm-role','pm-tools','pm-link'];
   const keys   = ['name',   'tag',   'desc',   'fulldesc',   'year',   'role',   'tools',   'link'];
   if(idx!==undefined) {
     const p = firebaseProjects[idx];
     keys.forEach((k,i)=>{ document.getElementById(fields[i]).value = p[k]||''; });
-    setPrev('pm-banner-prev', p.banner, 'banner'); tmpBanner = p.banner;
-    setPrev('pm-full-prev',   p.full,   'full');   tmpFull   = p.full;
+    setPrev('pm-full-prev', p.full || p.image || p.banner, 'full'); tmpFull = p.full || p.image || p.banner;
   } else {
     fields.forEach(f=>document.getElementById(f).value='');
-    setPrev('pm-banner-prev',null,'banner'); setPrev('pm-full-prev',null,'full');
+    setPrev('pm-full-prev',null,'full');
   }
   openM('pm');
 }
@@ -567,11 +557,9 @@ async function saveProject() {
     const tagValue = document.getElementById('pm-tag').value.trim();
     const oldProject = editProjIdx !== null ? firebaseProjects[editProjIdx] : null;
 
-    let bannerUrl = oldProject?.banner || '';
-    let fullUrl = oldProject?.full || '';
+    let fullUrl = oldProject?.full || oldProject?.image || oldProject?.banner || '';
 
-    if (tmpBannerFile) bannerUrl = await uploadProjectImage(tmpBannerFile, 'banner');
-    if (tmpFullFile) fullUrl = await uploadProjectImage(tmpFullFile, 'full');
+    if (tmpFullFile) fullUrl = await uploadProjectImage(tmpFullFile, 'project')
 
     const obj = {
       name,
@@ -583,8 +571,9 @@ async function saveProject() {
       tools: document.getElementById('pm-tools').value.trim(),
       link: document.getElementById('pm-link').value.trim(),
       category: (tagValue.split('·')[0] || tagValue || 'Project').trim(),
-      banner: bannerUrl,
       full: fullUrl,
+      image: fullUrl,
+      banner: fullUrl,
       updatedAt: window.FB.serverTimestamp()
     };
 
@@ -596,9 +585,7 @@ async function saveProject() {
     }
 
     closeM('pm');
-    tmpBanner = null;
     tmpFull = null;
-    tmpBannerFile = null;
     tmpFullFile = null;
 
     await renderProjects();
@@ -873,8 +860,8 @@ function previewFile(input, prevId, cls) {
     return;
   }
 
-  const maxWidth = cls === 'banner' ? 1400 : 1800;
-  const quality = cls === 'banner' ? 0.78 : 0.82;
+  const maxWidth = 2400;
+  const quality = 0.94;
 
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -914,11 +901,6 @@ function previewFile(input, prevId, cls) {
         img.src = previewUrl;
         img.style.display = 'block';
         img.className = 'img-preview ' + cls;
-
-        if (cls === 'banner') {
-          tmpBanner = previewUrl;
-          tmpBannerFile = compressedFile;
-        }
 
         if (cls === 'full') {
           tmpFull = previewUrl;

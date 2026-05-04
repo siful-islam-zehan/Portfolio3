@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
   getFirestore,
   collection,
@@ -12,6 +13,13 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDzgHvTzASRtCI7IEpvxOzAjXA9x4vz2QM",
   authDomain: "portfolio-b9537.firebaseapp.com",
@@ -24,8 +32,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 window.db = db;
+window.storage = storage;
+
 window.FB = {
   collection,
   addDoc,
@@ -38,8 +49,13 @@ window.FB = {
   serverTimestamp
 };
 
+window.FBStorage = {
+  ref,
+  uploadBytes,
+  getDownloadURL
+};
+
 window.getFirebaseProjects = async function () {
-  const { collection, getDocs, query, orderBy } = window.FB;
   const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
 

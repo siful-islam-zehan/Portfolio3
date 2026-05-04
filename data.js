@@ -1,6 +1,6 @@
-// data.js — Firebase Firestore + Local settings store
-// Use this file on GitHub Pages. No npm needed.
-// Images are uploaded through ImgBB from admin.html, then saved as URLs in Firestore.
+// data.js — Firebase Firestore shared live store + local fallback
+// GitHub Pages ready. No npm needed.
+// Images are uploaded through ImgBB from admin.html, then URLs are saved in Firestore.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -9,10 +9,10 @@ import {
   addDoc,
   getDocs,
   doc,
+  getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
-  query,
-  orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -28,34 +28,78 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 window.db = db;
 window.FB = {
   collection,
   addDoc,
   getDocs,
   doc,
+  getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
-  query,
-  orderBy,
   serverTimestamp
 };
 
-window.getFirebaseProjects = async function () {
-  const snap = await getDocs(collection(db, "projects"));
-  const projects = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-
-  projects.sort((a, b) => {
-    const at = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-    const bt = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+function sortByTimeDesc(items) {
+  return items.sort((a, b) => {
+    const at = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0);
+    const bt = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0);
     return bt - at;
   });
+}
 
-  return projects;
+window.getFirebaseCollection = async function (name) {
+  const snap = await getDocs(collection(db, name));
+  return sortByTimeDesc(snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })));
 };
 
-// Local store kept for contact, experience, education, messages, CV, settings.
-// Projects now come from Firebase Firestore.
+window.getFirebaseProjects = async function () {
+  return await window.getFirebaseCollection('projects');
+};
+
+window.getSiteData = async function () {
+  const ref = doc(db, 'site', 'main');
+  const snap = await getDoc(ref);
+  const remote = snap.exists() ? snap.data() : {};
+
+  const defaults = {
+    settings: {
+      name: 'Siful Islam Zehan',
+      role: 'UI/UX Designer & Full Stack Developer',
+      location: 'Bangladesh',
+      tagline: 'I design clean, modern digital products.',
+      status: 'open',
+      heroTag: 'Available for freelance work'
+    },
+    contact: {
+      email: 'sifulislamzehan@gmail.com',
+      phone: '',
+      location: 'Bangladesh',
+      linkedin: '#',
+      github: '#',
+      dribbble: '#',
+      behance: '#'
+    },
+    cv: null
+  };
+
+  return {
+    settings: { ...defaults.settings, ...(remote.settings || {}) },
+    contact: { ...defaults.contact, ...(remote.contact || {}) },
+    cv: remote.cv || defaults.cv
+  };
+};
+
+window.saveSiteData = async function (partial) {
+  await setDoc(doc(db, 'site', 'main'), {
+    ...partial,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+};
+
+// Local store kept only as fallback for messages and older local data.
 const DB = {
   KEYS: {
     projects: 'pf_projects',
@@ -64,7 +108,7 @@ const DB = {
     contact: 'pf_contact',
     messages: 'pf_messages',
     cv: 'pf_cv',
-    settings: 'pf_settings',
+    settings: 'pf_settings'
   },
 
   defaults: {
@@ -74,9 +118,8 @@ const DB = {
       location: 'Bangladesh',
       tagline: 'I design clean, modern digital products.',
       status: 'open',
-      heroTag: 'Available for freelance work',
+      heroTag: 'Available for freelance work'
     },
-
     contact: {
       email: 'sifulislamzehan@gmail.com',
       phone: '',
@@ -84,14 +127,13 @@ const DB = {
       linkedin: '#',
       github: '#',
       dribbble: '#',
-      behance: '#',
+      behance: '#'
     },
-
     projects: [],
     experience: [],
     education: [],
     messages: [],
-    cv: null,
+    cv: null
   },
 
   get(key) {

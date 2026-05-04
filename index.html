@@ -553,14 +553,14 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
   </div>
 </footer>
 
-<script type="module" src="data.js"></script>
+<script type="module" src="data.js?v=5"></script>
 <script>
 const BG_COLORS = ['#f0f4ff','#f0fff8','#fff8f0','#fff0f4','#f5f0ff','#fafaf0','#e8f4ff'];
 let activeProjectIdx = 0;
 let allProjects = [];
 
 async function applySettings() {
-  const site = await getSiteData();
+  const site = await window.getSiteData();
   const s = site.settings;
   const c = site.contact;
   const cv = site.cv;
@@ -584,7 +584,7 @@ async function applySettings() {
 }
 
 async function renderProjects() {
-  allProjects = await getFirebaseProjects();
+  allProjects = await window.getFirebaseProjects();
   const list = document.getElementById('projects-list');
 
   if (!allProjects || allProjects.length === 0) {
@@ -716,7 +716,7 @@ function updatePreviewScrollIndicator() {
 
 async function renderExperience() {
   const list = document.getElementById('exp-timeline');
-  const data = await getFirebaseCollection('experience');
+  const data = await window.getFirebaseCollection('experience');
   if (!data || data.length === 0) {
     list.innerHTML = '<div class="timeline-empty">No experience added yet.</div>';
     return;
@@ -737,7 +737,7 @@ async function renderExperience() {
 
 async async function renderEducation() {
   const list = document.getElementById('edu-timeline');
-  const data = await getFirebaseCollection('education');
+  const data = await window.getFirebaseCollection('education');
   if (!data || data.length === 0) {
     list.innerHTML = '<div class="timeline-empty">No education added yet.</div>';
     return;

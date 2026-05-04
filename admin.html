@@ -524,9 +524,11 @@ function setPrev(id, src, cls) {
 
 async function uploadProjectImage(file, folder) {
   if (!file) return '';
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+
+  const safeName = (file.name || 'project-image.jpg').replace(/[^a-zA-Z0-9._-]/g, '-');
   const path = `projects/${folder}/${Date.now()}-${safeName}`;
-  const imageRef = window.FB.ref(storage, path);
+  const imageRef = window.FB.ref(window.storage, path);
+
   await window.FB.uploadBytes(imageRef, file);
   return await window.FB.getDownloadURL(imageRef);
 }
@@ -541,8 +543,11 @@ async function saveProject() {
     const tagValue = document.getElementById('pm-tag').value.trim();
     const oldProject = editProjIdx !== null ? firebaseProjects[editProjIdx] : null;
 
-    const bannerUrl = tmpBannerFile ? await uploadProjectImage(tmpBannerFile, 'banner') : (tmpBanner || oldProject?.banner || '');
-    const fullUrl = tmpFullFile ? await uploadProjectImage(tmpFullFile, 'full') : (tmpFull || oldProject?.full || '');
+    let bannerUrl = oldProject?.banner || '';
+    let fullUrl = oldProject?.full || '';
+
+    if (tmpBannerFile) bannerUrl = await uploadProjectImage(tmpBannerFile, 'banner');
+    if (tmpFullFile) fullUrl = await uploadProjectImage(tmpFullFile, 'full');
 
     const obj = {
       name,
@@ -560,20 +565,24 @@ async function saveProject() {
     };
 
     if(editProjIdx !== null){
-      await window.FB.updateDoc(window.FB.doc(db, 'projects', oldProject.firebaseId), obj);
+      await window.FB.updateDoc(window.FB.doc(window.db, 'projects', oldProject.firebaseId), obj);
     } else {
       obj.createdAt = window.FB.serverTimestamp();
-      await window.FB.addDoc(window.FB.collection(db, 'projects'), obj);
+      await window.FB.addDoc(window.FB.collection(window.db, 'projects'), obj);
     }
 
     closeM('pm');
-    tmpBannerFile = null; tmpFullFile = null;
+    tmpBanner = null;
+    tmpFull = null;
+    tmpBannerFile = null;
+    tmpFullFile = null;
+
     await renderProjects();
     await renderDash();
     toast(editProjIdx!==null ? 'Project updated ✓' : 'Project added ✓');
   } catch (err) {
-    console.error(err);
-    alert('Firebase save failed. Check Firestore/Storage rules and console error.');
+    console.error('Firebase save error:', err);
+    alert('Firebase save failed: ' + (err.message || err.code || err));
   }
 }
 
@@ -771,12 +780,13 @@ function previewFile(input, prevId, cls) {
     return;
   }
 
-  const maxWidth = cls === 'banner' ? 1200 : 1600;
-  const quality = 0.72;
+  const maxWidth = cls === 'banner' ? 1400 : 1800;
+  const quality = cls === 'banner' ? 0.78 : 0.82;
 
   const reader = new FileReader();
   reader.onload = (e) => {
     const sourceImg = new Image();
+
     sourceImg.onload = () => {
       let width = sourceImg.width;
       let height = sourceImg.height;
@@ -790,20 +800,40 @@ function previewFile(input, prevId, cls) {
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
+
       const ctx = canvas.getContext('2d');
       ctx.drawImage(sourceImg, 0, 0, width, height);
 
-      const compressed = canvas.toDataURL('image/jpeg', quality);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('Image compression failed. Try another image.');
+          return;
+        }
 
-      const img = document.getElementById(prevId);
-      img.src = compressed;
-      img.style.display = 'block';
-      img.className = 'img-preview ' + cls;
+        const compressedFile = new File(
+          [blob],
+          file.name.replace(/\.[^/.]+$/, '') + '.jpg',
+          { type: 'image/jpeg' }
+        );
 
-      if (cls === 'banner') { tmpBanner = compressed; tmpBannerFile = file; }
-      if (cls === 'full') { tmpFull = compressed; tmpFullFile = file; }
+        const previewUrl = URL.createObjectURL(compressedFile);
+        const img = document.getElementById(prevId);
+        img.src = previewUrl;
+        img.style.display = 'block';
+        img.className = 'img-preview ' + cls;
 
-      toast('Image ready to save ✓');
+        if (cls === 'banner') {
+          tmpBanner = previewUrl;
+          tmpBannerFile = compressedFile;
+        }
+
+        if (cls === 'full') {
+          tmpFull = previewUrl;
+          tmpFullFile = compressedFile;
+        }
+
+        toast('Image ready to save ✓');
+      }, 'image/jpeg', quality);
     };
 
     sourceImg.onerror = () => {

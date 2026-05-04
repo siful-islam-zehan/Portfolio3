@@ -1,67 +1,50 @@
-const DB = {
-  KEYS: {
-    projects: 'pf_projects',
-    experience: 'pf_experience',
-    education: 'pf_education',
-    contact: 'pf_contact',
-    messages: 'pf_messages',
-    cv: 'pf_cv',
-    settings: 'pf_settings',
-  },
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  defaults: {
-    settings: {
-      name: 'Siful Islam Zehan',
-      role: 'UI/UX Designer & Full Stack Developer',
-      location: 'Bangladesh',
-      tagline: 'I design clean, modern digital products.',
-      status: 'open',
-      heroTag: 'Available for freelance work',
-    },
+const firebaseConfig = {
+  apiKey: "AIzaSyDzgHvTzASRtCI7IEpvxOzAjXA9x4vz2QM",
+  authDomain: "portfolio-b9537.firebaseapp.com",
+  projectId: "portfolio-b9537",
+  storageBucket: "portfolio-b9537.firebasestorage.app",
+  messagingSenderId: "506117095076",
+  appId: "1:506117095076:web:ac372464c48d7ff54a3031",
+  measurementId: "G-416CMYZSXN"
+};
 
-    contact: {
-      email: 'sifulislamzehan@gmail.com',
-      phone: '',
-      location: 'Bangladesh',
-      linkedin: '#',
-      github: '#',
-      dribbble: '#',
-      behance: '#',
-    },
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    projects: [],
-    experience: [],
-    education: [],
-    messages: [],
-    cv: null,
-  },
+window.db = db;
+window.FB = {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  serverTimestamp
+};
 
-  get(key) {
-    try {
-      const raw = localStorage.getItem(this.KEYS[key]);
-      if (!raw) return this.clone(this.defaults[key]);
-      return JSON.parse(raw);
-    } catch (e) {
-      return this.clone(this.defaults[key]);
-    }
-  },
+window.getFirebaseProjects = async function () {
+  const { collection, getDocs, query, orderBy } = window.FB;
+  const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
 
-  set(key, value) {
-    localStorage.setItem(this.KEYS[key], JSON.stringify(value));
-
-    // same tab update
-    window.dispatchEvent(new CustomEvent('pf-data-updated', { detail: { key } }));
-  },
-
-  init() {
-    Object.keys(this.defaults).forEach(key => {
-      if (!localStorage.getItem(this.KEYS[key])) {
-        this.set(key, this.defaults[key]);
-      }
-    });
-  },
-
-  clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
+  return snap.docs.map(d => ({
+    firebaseId: d.id,
+    ...d.data()
+  }));
 };

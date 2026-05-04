@@ -735,7 +735,7 @@ async function renderExperience() {
   `).join('');
 }
 
-async async function renderEducation() {
+async function renderEducation() {
   const list = document.getElementById('edu-timeline');
   const data = await window.getFirebaseCollection('education');
   if (!data || data.length === 0) {

@@ -408,15 +408,17 @@ tr:hover td{background:var(--gray-faint)}
 <div class="toast" id="toast"></div>
 
 <!-- Shared data store -->
-<script src="data.js"></script>
+<script type="module" src="data.js"></script>
 <script>
 // ═══════════════════════════════════════
-//  ADMIN  —  reads & writes via DB
+//  ADMIN  —  Firebase projects + local settings
 // ═══════════════════════════════════════
 
 const CREDS = { user:'admin', pass:'zehan2025' };
 let editProjIdx = null, editExpIdx = null, editEduIdx = null;
 let tmpBanner = null, tmpFull = null;
+let tmpBannerFile = null, tmpFullFile = null;
+let firebaseProjects = [];
 
 // ── LOGIN ──
 function doLogin() {
@@ -435,21 +437,21 @@ document.getElementById('lu').addEventListener('keydown', e=>{ if(e.key==='Enter
 function doLogout() { document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; document.getElementById('lerr').style.display='none'; }
 
 // ── NAV ──
-function goto(page) {
+async function goto(page) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   const navEl = document.querySelector(`.sb-item[onclick*="'${page}'"]`);
   if(navEl) navEl.classList.add('active');
   const renders = { dashboard:renderDash, projects:renderProjects, experience:renderExp, education:renderEdu, contact:loadContact, messages:renderMsgs, cv:renderCV };
-  if(renders[page]) renders[page]();
+  if(renders[page]) await renders[page]();
 }
 
-function initApp() { renderDash(); updateBadge(); }
+async function initApp() { await renderDash(); updateBadge(); }
 
 // ── DASHBOARD ──
-function renderDash() {
-  const projs = DB.get('projects');
+async function renderDash() {
+  const projs = await getFirebaseProjects();
   const exps  = DB.get('experience');
   const msgs  = DB.get('messages');
   const cv    = DB.get('cv');
@@ -480,15 +482,15 @@ function renderDash() {
 }
 
 // ── PROJECTS ──
-function renderProjects() {
-  const data = DB.get('projects');
+async function renderProjects() {
+  firebaseProjects = await getFirebaseProjects();
   const el = document.getElementById('proj-list');
-  el.innerHTML = data.length===0
+  el.innerHTML = firebaseProjects.length===0
     ? '<div style="padding:2rem;text-align:center;color:var(--gray-light);font-size:.82rem">No projects yet. Click "+ Add Project"</div>'
-    : data.map((p,i)=>`
+    : firebaseProjects.map((p,i)=>`
       <div class="project-row">
         <div class="thumb">${p.banner?`<img src="${p.banner}" alt="">`:'🖼'}</div>
-        <div><div class="row-name">${p.name}</div><div class="row-sub">${p.tag} · ${p.year}</div></div>
+        <div><div class="row-name">${p.name || ''}</div><div class="row-sub">${p.tag || ''} · ${p.year || ''}</div></div>
         <div class="row-actions">
           <button class="btn btn-outline btn-sm" onclick="openProjModal(${i})">✏ Edit</button>
           <button class="btn btn-danger btn-sm" onclick="deleteProj(${i})">✕</button>
@@ -498,12 +500,12 @@ function renderProjects() {
 
 function openProjModal(idx) {
   editProjIdx = idx!==undefined ? idx : null;
-  tmpBanner = null; tmpFull = null;
+  tmpBanner = null; tmpFull = null; tmpBannerFile = null; tmpFullFile = null;
   document.getElementById('pm-title').textContent = idx!==undefined ? 'Edit Project' : 'Add Project';
   const fields = ['pm-name','pm-tag','pm-desc','pm-fulldesc','pm-year','pm-role','pm-tools','pm-link'];
   const keys   = ['name',   'tag',   'desc',   'fulldesc',   'year',   'role',   'tools',   'link'];
   if(idx!==undefined) {
-    const p = DB.get('projects')[idx];
+    const p = firebaseProjects[idx];
     keys.forEach((k,i)=>{ document.getElementById(fields[i]).value = p[k]||''; });
     setPrev('pm-banner-prev', p.banner, 'banner'); tmpBanner = p.banner;
     setPrev('pm-full-prev',   p.full,   'full');   tmpFull   = p.full;
@@ -520,46 +522,73 @@ function setPrev(id, src, cls) {
   else { el.style.display='none'; el.src=''; }
 }
 
-function saveProject() {
+async function uploadProjectImage(file, folder) {
+  if (!file) return '';
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+  const path = `projects/${folder}/${Date.now()}-${safeName}`;
+  const imageRef = window.FB.ref(storage, path);
+  await window.FB.uploadBytes(imageRef, file);
+  return await window.FB.getDownloadURL(imageRef);
+}
+
+async function saveProject() {
   const name = document.getElementById('pm-name').value.trim();
   if(!name){ alert('Project name is required'); return; }
 
-  const data = DB.get('projects');
-  const tagValue = document.getElementById('pm-tag').value.trim();
-  const obj = {
-    id: editProjIdx!==null ? data[editProjIdx].id : Date.now(),
-    name,
-    tag: tagValue,
-    desc: document.getElementById('pm-desc').value.trim(),
-    fulldesc: document.getElementById('pm-fulldesc').value.trim(),
-    year: document.getElementById('pm-year').value.trim(),
-    role: document.getElementById('pm-role').value.trim(),
-    tools: document.getElementById('pm-tools').value.trim(),
-    link: document.getElementById('pm-link').value.trim(),
-    category: (tagValue.split('·')[0] || tagValue || 'Project').trim(),
-    banner: tmpBanner,
-    full: tmpFull,
-  };
+  try {
+    toast('Saving project...');
 
-  if(editProjIdx!==null){ data[editProjIdx]=obj; } else { data.push(obj); }
+    const tagValue = document.getElementById('pm-tag').value.trim();
+    const oldProject = editProjIdx !== null ? firebaseProjects[editProjIdx] : null;
 
-  const saved = DB.set('projects', data);
-  if(!saved){
-    alert('Image is too large for browser storage. Please use a smaller JPG image.');
-    return;
+    const bannerUrl = tmpBannerFile ? await uploadProjectImage(tmpBannerFile, 'banner') : (tmpBanner || oldProject?.banner || '');
+    const fullUrl = tmpFullFile ? await uploadProjectImage(tmpFullFile, 'full') : (tmpFull || oldProject?.full || '');
+
+    const obj = {
+      name,
+      tag: tagValue,
+      desc: document.getElementById('pm-desc').value.trim(),
+      fulldesc: document.getElementById('pm-fulldesc').value.trim(),
+      year: document.getElementById('pm-year').value.trim(),
+      role: document.getElementById('pm-role').value.trim(),
+      tools: document.getElementById('pm-tools').value.trim(),
+      link: document.getElementById('pm-link').value.trim(),
+      category: (tagValue.split('·')[0] || tagValue || 'Project').trim(),
+      banner: bannerUrl,
+      full: fullUrl,
+      updatedAt: window.FB.serverTimestamp()
+    };
+
+    if(editProjIdx !== null){
+      await window.FB.updateDoc(window.FB.doc(db, 'projects', oldProject.firebaseId), obj);
+    } else {
+      obj.createdAt = window.FB.serverTimestamp();
+      await window.FB.addDoc(window.FB.collection(db, 'projects'), obj);
+    }
+
+    closeM('pm');
+    tmpBannerFile = null; tmpFullFile = null;
+    await renderProjects();
+    await renderDash();
+    toast(editProjIdx!==null ? 'Project updated ✓' : 'Project added ✓');
+  } catch (err) {
+    console.error(err);
+    alert('Firebase save failed. Check Firestore/Storage rules and console error.');
   }
-
-  closeM('pm');
-  renderProjects();
-  renderDash();
-  toast(editProjIdx!==null ? 'Project updated ✓' : 'Project added ✓');
 }
 
-function deleteProj(i) {
+async function deleteProj(i) {
   if(!confirm('Delete this project?')) return;
-  const data = DB.get('projects');
-  data.splice(i,1); DB.set('projects',data);
-  renderProjects(); renderDash(); toast('Project deleted');
+  try {
+    const id = firebaseProjects[i].firebaseId;
+    await window.FB.deleteDoc(window.FB.doc(db, 'projects', id));
+    await renderProjects();
+    await renderDash();
+    toast('Project deleted');
+  } catch (err) {
+    console.error(err);
+    alert('Delete failed. Check Firebase rules.');
+  }
 }
 
 // ── EXPERIENCE ──
@@ -771,8 +800,8 @@ function previewFile(input, prevId, cls) {
       img.style.display = 'block';
       img.className = 'img-preview ' + cls;
 
-      if (cls === 'banner') tmpBanner = compressed;
-      if (cls === 'full') tmpFull = compressed;
+      if (cls === 'banner') { tmpBanner = compressed; tmpBannerFile = file; }
+      if (cls === 'full') { tmpFull = compressed; tmpFullFile = file; }
 
       toast('Image ready to save ✓');
     };

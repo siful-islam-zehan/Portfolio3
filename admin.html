@@ -527,7 +527,7 @@ const IMGBB_API_KEY = "4c1140bbb1cfaea7ae9ae903be8fe5e1";
 async function uploadProjectImage(file, folder) {
   if (!file) return '';
 
-  if (!IMGBB_API_KEY || IMGBB_API_KEY === "4c1140bbb1cfaea7ae9ae903be8fe5e1") {
+  if (!IMGBB_API_KEY || IMGBB_API_KEY === "PASTE_YOUR_IMGBB_API_KEY_HERE") {
     throw new Error('ImgBB API key missing. Open admin.html and replace PASTE_YOUR_IMGBB_API_KEY_HERE with your ImgBB API key.');
   }
 

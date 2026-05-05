@@ -156,7 +156,7 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   justify-content:flex-start;
   transition:all var(--t);
   position:relative;
-  overflow:hidden;
+  overflow:visible;
 }
 .preview-banner{
   width:100%;
@@ -165,10 +165,10 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   object-fit:contain;
   image-rendering:auto;
   transform-origin:top center;
-  transition:transform .55s cubic-bezier(.25,.46,.45,.94), filter .35s ease;
-  will-change:transform;
+  transition:none;
+  will-change:auto;
 }
-.preview-card:hover .preview-banner{transform:none;filter:contrast(1.03) saturate(1.03)}
+.preview-card:hover .preview-banner{transform:none!important;filter:none!important}
 .preview-placeholder-wrap{
   min-height:680px;
   width:100%;

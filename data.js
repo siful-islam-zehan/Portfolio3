@@ -1,7 +1,3 @@
-// data.js — Firebase Firestore shared live store + local fallback
-// GitHub Pages ready. No npm needed.
-// Images are uploaded through ImgBB from admin.html, then URLs are saved in Firestore.
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
@@ -9,165 +5,42 @@ import {
   addDoc,
   getDocs,
   doc,
-  getDoc,
-  setDoc,
   updateDoc,
   deleteDoc,
+  query,
+  orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDzgHvTzASRtCI7IEpvxOzAjXA9x4vz2QM",
-  authDomain: "portfolio-b9537.firebaseapp.com",
-  projectId: "portfolio-b9537",
-  storageBucket: "portfolio-b9537.firebasestorage.app",
-  messagingSenderId: "506117095076",
-  appId: "1:506117095076:web:ac372464c48d7ff54a3031",
-  measurementId: "G-416CMYZSXN"
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window.db = db;
+
 window.FB = {
   collection,
   addDoc,
   getDocs,
   doc,
-  getDoc,
-  setDoc,
   updateDoc,
   deleteDoc,
+  query,
+  orderBy,
   serverTimestamp
 };
 
-function sortByTimeDesc(items) {
-  return items.sort((a, b) => {
-    const at = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0);
-    const bt = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0);
-    return bt - at;
-  });
-}
-
-window.getFirebaseCollection = async function (name) {
-  const snap = await getDocs(collection(db, name));
-  return sortByTimeDesc(snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })));
-};
-
 window.getFirebaseProjects = async function () {
-  return await window.getFirebaseCollection('projects');
+  const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+
+  return snap.docs.map(d => ({
+    firebaseId: d.id,
+    ...d.data()
+  }));
 };
-
-window.getSiteData = async function () {
-  const ref = doc(db, 'site', 'main');
-  const snap = await getDoc(ref);
-  const remote = snap.exists() ? snap.data() : {};
-
-  const defaults = {
-    settings: {
-      name: 'Siful Islam Zehan',
-      role: 'UI/UX Designer & Full Stack Developer',
-      location: 'Bangladesh',
-      tagline: 'I design clean, modern digital products.',
-      status: 'open',
-      heroTag: 'Available for freelance work'
-    },
-    contact: {
-      email: 'sifulislamzehan@gmail.com',
-      phone: '',
-      location: 'Bangladesh',
-      linkedin: '#',
-      github: '#',
-      dribbble: '#',
-      behance: '#'
-    },
-    cv: null
-  };
-
-  return {
-    settings: { ...defaults.settings, ...(remote.settings || {}) },
-    contact: { ...defaults.contact, ...(remote.contact || {}) },
-    cv: remote.cv || defaults.cv
-  };
-};
-
-window.saveSiteData = async function (partial) {
-  await setDoc(doc(db, 'site', 'main'), {
-    ...partial,
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-};
-
-// Local store kept only as fallback for messages and older local data.
-const DB = {
-  KEYS: {
-    projects: 'pf_projects',
-    experience: 'pf_experience',
-    education: 'pf_education',
-    contact: 'pf_contact',
-    messages: 'pf_messages',
-    cv: 'pf_cv',
-    settings: 'pf_settings'
-  },
-
-  defaults: {
-    settings: {
-      name: 'Siful Islam Zehan',
-      role: 'UI/UX Designer & Full Stack Developer',
-      location: 'Bangladesh',
-      tagline: 'I design clean, modern digital products.',
-      status: 'open',
-      heroTag: 'Available for freelance work'
-    },
-    contact: {
-      email: 'sifulislamzehan@gmail.com',
-      phone: '',
-      location: 'Bangladesh',
-      linkedin: '#',
-      github: '#',
-      dribbble: '#',
-      behance: '#'
-    },
-    projects: [],
-    experience: [],
-    education: [],
-    messages: [],
-    cv: null
-  },
-
-  get(key) {
-    try {
-      const raw = localStorage.getItem(this.KEYS[key]);
-      if (!raw) return this.clone(this.defaults[key]);
-      return JSON.parse(raw);
-    } catch (e) {
-      return this.clone(this.defaults[key]);
-    }
-  },
-
-  set(key, value) {
-    try {
-      localStorage.setItem(this.KEYS[key], JSON.stringify(value));
-      window.dispatchEvent(new CustomEvent('pf-data-updated', { detail: { key } }));
-      return true;
-    } catch (e) {
-      console.error('Local save failed:', e);
-      return false;
-    }
-  },
-
-  init() {
-    Object.keys(this.defaults).forEach(key => {
-      if (!localStorage.getItem(this.KEYS[key])) {
-        this.set(key, this.defaults[key]);
-      }
-    });
-  },
-
-  clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
-};
-
-window.DB = DB;

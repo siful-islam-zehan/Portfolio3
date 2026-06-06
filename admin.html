@@ -327,14 +327,13 @@ tr:hover td{background:var(--gray-faint)}
       <div class="fg"><label>Tools Used</label><input id="pm-tools" placeholder="Figma · React · Tailwind CSS"></div>
       <div class="fg"><label>Project Link (optional)</label><input id="pm-link" placeholder="https://..."></div>
       <div class="fg">
-        <label>Website Image <span style="color:var(--gray-light);font-weight:400">(main project preview — upload high quality 1920px+ image)</span></label>
-        <div class="img-drop" onclick="triggerFile('pm-full-input')">
-          <div class="img-drop-icon">🗂</div>
-          <div class="img-drop-label">Click to upload · Recommended 1920px+ width for clear preview</div>
-          <input type="file" id="pm-full-input" accept="image/*" style="display:none" onchange="previewFile(this,'pm-full-prev','full')">
-        </div>
-        <img id="pm-full-prev" class="img-preview full" alt="Full">
-      </div>
+<label>Select Project Image</label>
+<select id="pm-image-select" onchange="selectProjectImage(this.value)">
+<option value="">Choose image</option>
+</select>
+<img id="pm-full-prev" class="img-preview full" alt="Full">
+<div class="fg-hint">Put your images inside assets/projects/ and update PROJECT_IMAGES list.</div>
+</div>
     </div>
     <div class="mfoot">
       <button class="btn btn-outline" onclick="closeM('pm')">Cancel</button>
@@ -414,6 +413,24 @@ tr:hover td{background:var(--gray-faint)}
 const CREDS = { user:'admin', pass:'zehan2025' };
 let editProjIdx = null, editExpIdx = null, editEduIdx = null;
 let tmpFull = null;
+
+const PROJECT_IMAGES = [
+'assets/projects/design1.jpg',
+'assets/projects/design2.jpg',
+'assets/projects/design3.jpg'
+];
+function loadProjectImages(){
+ const s=document.getElementById('pm-image-select');
+ if(!s) return;
+ s.innerHTML='<option value="">Choose image</option>';
+ PROJECT_IMAGES.forEach(img=>{const o=document.createElement('option');o.value=img;o.textContent=img.split('/').pop();s.appendChild(o);});
+}
+function selectProjectImage(url){
+ tmpFull=url;
+ const p=document.getElementById('pm-full-prev');
+ if(url){p.src=url;p.style.display='block';}
+}
+
 let tmpFullFile = null;
 let firebaseProjects = [];
 let firebaseExperience = [];
@@ -426,7 +443,7 @@ function doLogin() {
   if(u===CREDS.user && p===CREDS.pass) {
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
-    DB.init(); initApp();
+    DB.init(); initApp(); setTimeout(loadProjectImages,1000);
   } else {
     document.getElementById('lerr').style.display='block';
   }
@@ -559,7 +576,7 @@ async function saveProject() {
 
     let fullUrl = oldProject?.full || oldProject?.image || oldProject?.banner || '';
 
-    if (tmpFullFile) fullUrl = await uploadProjectImage(tmpFullFile, 'project')
+    if(tmpFull) fullUrl = tmpFull; else if (tmpFullFile) fullUrl = await uploadProjectImage(tmpFullFile, 'project')
 
     const obj = {
       name,

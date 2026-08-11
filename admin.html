@@ -324,7 +324,7 @@ tr:hover td{background:var(--gray-faint)}
         <div class="fg"><label>Year</label><input id="pm-year" placeholder="2024"></div>
         <div class="fg"><label>My Role</label><input id="pm-role" placeholder="Lead Designer"></div>
       </div>
-      <div class="fg"><label>Tools Used</label><input id="pm-tools" placeholder="Figma · React · Tailwind CSS"></div>
+      <div class="fg"><label>Tools Used</label><input id="pm-tools" placeholder="Figma · Adobe XD · Photoshop"></div>
       <div class="fg"><label>Project Link (optional)</label><input id="pm-link" placeholder="https://..."></div>
       <div class="fg">
 <label>Select Project Image</label>
@@ -415,20 +415,20 @@ let editProjIdx = null, editExpIdx = null, editEduIdx = null;
 let tmpFull = null;
 
 const PROJECT_IMAGES = [
-'assets/projects/Hindenburg.png',
-'assets/projects/YWC.png',
-'assets/projects/OLlicec.png',
-'assets/projects/CoreDesk Pro.png',
-'assets/projects/Alaska LTD.png',
-'assets/projects/Grandpool.png',
-'assets/projects/Hexa.png',
-'assets/projects/Mealgo.png',
-'assets/projects/Sharetrip.png',
-'assets/projects/Sheen.png',
-'assets/projects/TECHIGI.png',
-'assets/projects/maskot.png',
-'assets/projects/ngpage.png',
-'assets/projects/runi.png',
+'assets/projects/Hindenburg.jpg',
+'assets/projects/YWC.jpg',
+'assets/projects/OLlicec.jpg',
+'assets/projects/CoreDesk Pro.jpg',
+'assets/projects/Alaska LTD.jpg',
+'assets/projects/Grandpool.jpg',
+'assets/projects/Hexa.jpg',
+'assets/projects/Mealgo.jpg',
+'assets/projects/Sharetrip.jpg',
+'assets/projects/Sheen.jpg',
+'assets/projects/TECHIGI.jpg',
+'assets/projects/maskot.jpg',
+'assets/projects/ngpage.jpg',
+'assets/projects/runi.jpg',
 'assets/projects/design9.png'
 ];
 function loadProjectImages(){
@@ -889,8 +889,8 @@ function previewFile(input, prevId, cls) {
     return;
   }
 
-  const maxWidth = 3200;
-  const quality = 0.98;
+  const maxWidth = 1600;
+  const quality = 0.82;
 
   const reader = new FileReader();
   reader.onload = (e) => {

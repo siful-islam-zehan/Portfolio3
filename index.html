@@ -5,10 +5,11 @@
 <link rel="shortcut icon" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Siful Islam Zehan — UI/UX Designer & Full Stack Developer</title>
+<title>Siful Islam Zehan — UI/UX Designer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/photo.png" fetchpriority="high">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -27,11 +28,28 @@ body{font-family:var(--font-body);background:var(--white);color:var(--black);fon
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--gray-border)}
 .nav-logo{font-family:var(--font-display);font-size:1.25rem;color:var(--black);text-decoration:none;letter-spacing:-.02em}
-.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links{display:flex;gap:2.5rem;list-style:none;align-items:center}
 .nav-links a{font-size:.875rem;color:var(--gray-mid);text-decoration:none;transition:color var(--t)}
 .nav-links a:hover{color:var(--black)}
 .nav-cta{background:var(--black)!important;color:var(--white)!important;padding:.5rem 1.25rem;border-radius:var(--radius-xl);font-size:.8rem!important;font-weight:500!important;transition:all var(--t)!important}
 .nav-cta:hover{background:var(--gray-dark)!important;transform:translateY(-1px)}
+.nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;border:1px solid var(--gray-border);border-radius:10px;background:var(--white);cursor:pointer;padding:0}
+.nav-toggle span{display:block;width:16px;height:1.5px;background:var(--black);margin:0 auto;transition:transform var(--t),opacity var(--t)}
+.nav-toggle.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* SKELETON / LOADING STATES (perceived performance for images) */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.img-skeleton{
+  position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(100deg,var(--gray-faint) 30%,#ececea 45%,var(--gray-faint) 60%);
+  background-size:220% 100%;animation:shimmer 1.4s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;transition:opacity .25s ease;z-index:1;
+}
+.img-skeleton.hidden{opacity:0;pointer-events:none}
+.img-fade{opacity:0;transition:opacity .45s ease}
+.img-fade.loaded{opacity:1}
 
 /* HERO */
 .hero{min-height:100vh;padding:70px 5% 0;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4rem;max-width:1300px;margin:0 auto}
@@ -165,8 +183,9 @@ section{padding:100px 5%;max-width:1300px;margin:0 auto}
   object-fit:contain;
   image-rendering:auto;
   transform-origin:top center;
-  transition:none;
   will-change:auto;
+  position:relative;
+  z-index:0;
 }
 .preview-card:hover .preview-banner{transform:none!important;filter:none!important}
 .preview-placeholder-wrap{
@@ -398,7 +417,19 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
   .skills-grid{grid-template-columns:1fr 1fr}
   .values-grid{grid-template-columns:1fr}
   .contact-grid{grid-template-columns:1fr}
-  .nav-links{display:none}
+  .nav-toggle{display:flex}
+  .nav-links{
+    position:absolute;top:70px;left:0;right:0;
+    flex-direction:column;align-items:stretch;gap:0;
+    background:var(--white);border-bottom:1px solid var(--gray-border);
+    box-shadow:var(--shadow);
+    max-height:0;overflow:hidden;transition:max-height var(--t);
+  }
+  .nav-links.open{max-height:400px}
+  .nav-links li{border-top:1px solid var(--gray-border)}
+  .nav-links li:first-child{border-top:none}
+  .nav-links a{display:block;padding:1rem 5%}
+  .nav-cta{margin:1rem 5%;text-align:center}
   footer{flex-direction:column;text-align:center}
   .preview-card{height:520px}
   .preview-scroll-indicator{right:10px;top:84px;height:calc(100% - 170px)}
@@ -411,7 +442,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
 
 <nav>
   <a href="#" class="nav-logo" id="nav-logo">Zehan</a>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#projects">Projects</a></li>
@@ -419,14 +450,17 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
     <li><a href="#contact">Contact</a></li>
     <li><a href="#contact" class="nav-cta">Hire me</a></li>
   </ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <div style="max-width:1300px;margin:0 auto;padding:0 5%">
   <section class="hero" style="padding-left:0;padding-right:0;max-width:unset">
     <div class="hero-content">
       <div class="hero-tag" id="hero-tag">Available for freelance work</div>
-      <h1 id="hero-heading">Design that<br><em>speaks.</em><br>Code that works.</h1>
-      <p class="hero-desc" id="hero-desc">I'm Siful Islam Zehan — a UI/UX Designer and Full Stack Developer from Bangladesh. I craft clean, modern digital products.</p>
+      <h1 id="hero-heading">Design that<br><em>speaks.</em><br>Feels effortless.</h1>
+      <p class="hero-desc" id="hero-desc">I'm Siful Islam Zehan — a UI/UX Designer from Bangladesh. I craft clean, modern, user-centered digital products.</p>
       <div class="hero-btns">
         <a href="#projects" class="btn-primary">View Projects ↓</a>
         <a href="#contact" class="btn-outline">Contact Me</a>
@@ -437,7 +471,10 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
       <div class="hero-img-wrap">
         <div class="hero-img-bg"></div>
         <div class="hero-img-inner">
-          <img src="assets/photo.png" alt="Siful Islam Zehan" onerror="this.style.display='none'">
+          <div class="img-skeleton" id="hero-photo-skeleton"></div>
+          <img src="assets/photo.png" alt="Siful Islam Zehan" class="img-fade" fetchpriority="high" decoding="async"
+               onload="this.classList.add('loaded');document.getElementById('hero-photo-skeleton').classList.add('hidden')"
+               onerror="this.style.display='none';document.getElementById('hero-photo-skeleton').classList.add('hidden')">
         </div>
         <div class="hero-img-label">
           <div class="status-dot"></div>
@@ -452,8 +489,8 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
 
 <div class="marquee-wrap">
   <div class="marquee-track">
-    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Full Stack Dev</span><span class="marquee-item">React.js</span><span class="marquee-item">Next.js</span><span class="marquee-item">Figma</span><span class="marquee-item">Node.js</span><span class="marquee-item">Tailwind CSS</span><span class="marquee-item">Product Design</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span>
-    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Full Stack Dev</span><span class="marquee-item">React.js</span><span class="marquee-item">Next.js</span><span class="marquee-item">Figma</span><span class="marquee-item">Node.js</span><span class="marquee-item">Tailwind CSS</span><span class="marquee-item">Product Design</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span>
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Figma</span><span class="marquee-item">Product Design</span><span class="marquee-item">Wireframing</span><span class="marquee-item">Prototyping</span><span class="marquee-item">User Research</span><span class="marquee-item">Design Systems</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span><span class="marquee-item">Usability Testing</span>
+    <span class="marquee-item">UI/UX Design</span><span class="marquee-item">Figma</span><span class="marquee-item">Product Design</span><span class="marquee-item">Wireframing</span><span class="marquee-item">Prototyping</span><span class="marquee-item">User Research</span><span class="marquee-item">Design Systems</span><span class="marquee-item">Mobile App UI</span><span class="marquee-item">Dashboard Design</span><span class="marquee-item">Usability Testing</span>
   </div>
 </div>
 
@@ -461,12 +498,12 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
   <div class="about-grid">
     <div>
       <div class="section-label">About me</div>
-      <h2 class="section-title">A designer who<br><em>also ships code.</em></h2>
-      <p class="section-desc">I'm a UI/UX Designer and Full Stack Developer based in Bangladesh. I bridge the gap between great design and solid engineering — creating digital products that look stunning and perform flawlessly.</p>
-      <p class="section-desc" style="margin-top:1rem">From websites and mobile apps to dashboards and landing pages, I handle everything from wireframes to deployment.</p>
+      <h2 class="section-title">A designer who<br><em>obsesses over detail.</em></h2>
+      <p class="section-desc">I'm a UI/UX Designer based in Bangladesh. I focus on solving real user problems through clean, intentional design — starting from research and wireframes and ending in polished, pixel-perfect interfaces.</p>
+      <p class="section-desc" style="margin-top:1rem">From websites and mobile apps to dashboards and landing pages, I handle everything from user research and wireframes to final, high-fidelity UI.</p>
       <blockquote class="about-quote">"Clean design isn't just visual — it's how things work."</blockquote>
       <div class="about-pills">
-        <span class="pill">UI/UX Design</span><span class="pill">Frontend Dev</span><span class="pill">Backend Dev</span><span class="pill">Product Design</span><span class="pill">Figma</span><span class="pill">React.js</span>
+        <span class="pill">UI/UX Design</span><span class="pill">Wireframing</span><span class="pill">Prototyping</span><span class="pill">Design Systems</span><span class="pill">Product Design</span><span class="pill">Figma</span>
       </div>
     </div>
     <div class="about-right">
@@ -485,8 +522,8 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
     <div class="service-card"><span class="service-icon">◈</span><h3 class="service-title">Mobile App UI/UX</h3><p class="service-desc">Intuitive and beautiful mobile app designs for iOS and Android — from concept to prototype.</p></div>
     <div class="service-card"><span class="service-icon">⊞</span><h3 class="service-title">Dashboard Design</h3><p class="service-desc">Data-rich dashboards with clear visual hierarchy, clean data visualization, and smooth workflows.</p></div>
     <div class="service-card"><span class="service-icon">◲</span><h3 class="service-title">Landing Page Design</h3><p class="service-desc">High-converting, visually compelling landing pages crafted to drive action.</p></div>
-    <div class="service-card"><span class="service-icon">⌬</span><h3 class="service-title">Full Stack Development</h3><p class="service-desc">End-to-end web development with React, Next.js, Node.js, and modern databases.</p></div>
-    <div class="service-card"><span class="service-icon">⟡</span><h3 class="service-title">Frontend Development</h3><p class="service-desc">Translating designs into responsive, performant, accessible frontend code.</p></div>
+    <div class="service-card"><span class="service-icon">⌬</span><h3 class="service-title">Design Systems</h3><p class="service-desc">Reusable component libraries and style guides that keep products consistent as they scale.</p></div>
+    <div class="service-card"><span class="service-icon">⟡</span><h3 class="service-title">Wireframing & Prototyping</h3><p class="service-desc">Interactive prototypes and user flows that validate ideas before a single pixel is polished.</p></div>
   </div>
 </section>
 
@@ -495,10 +532,10 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
     <div class="section-label">Tech stack</div>
     <h2 class="section-title">Tools & <em>technologies</em></h2>
     <div class="skills-grid">
-      <div><div class="skills-group-title">Design tools</div><div class="skills-tags"><div class="skill-tag">Figma</div><div class="skill-tag">Adobe Photoshop</div><div class="skill-tag">Adobe XD</div></div></div>
-      <div><div class="skills-group-title">Frontend</div><div class="skills-tags"><div class="skill-tag">React.js</div><div class="skill-tag">Next.js</div><div class="skill-tag">Tailwind CSS</div><div class="skill-tag">TypeScript</div><div class="skill-tag">JavaScript / HTML / CSS</div></div></div>
-      <div><div class="skills-group-title">Backend</div><div class="skills-tags"><div class="skill-tag">Node.js</div><div class="skill-tag">Express.js</div><div class="skill-tag">NestJS</div><div class="skill-tag">REST API</div><div class="skill-tag">JWT Auth</div></div></div>
-      <div><div class="skills-group-title">Database</div><div class="skills-tags"><div class="skill-tag">PostgreSQL</div><div class="skill-tag">MongoDB</div></div></div>
+      <div><div class="skills-group-title">Design tools</div><div class="skills-tags"><div class="skill-tag">Figma</div><div class="skill-tag">Adobe Photoshop</div><div class="skill-tag">Adobe XD</div><div class="skill-tag">Adobe Illustrator</div></div></div>
+      <div><div class="skills-group-title">UX Process</div><div class="skills-tags"><div class="skill-tag">User Research</div><div class="skill-tag">Wireframing</div><div class="skill-tag">Prototyping</div><div class="skill-tag">Usability Testing</div></div></div>
+      <div><div class="skills-group-title">Design Systems</div><div class="skills-tags"><div class="skill-tag">Component Libraries</div><div class="skill-tag">Style Guides</div><div class="skill-tag">Design Tokens</div></div></div>
+      <div><div class="skills-group-title">Collaboration</div><div class="skills-tags"><div class="skill-tag">Notion</div><div class="skill-tag">Slack</div><div class="skill-tag">Jira</div><div class="skill-tag">Zeplin</div></div></div>
     </div>
   </div>
 </div>
@@ -524,7 +561,8 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
 
         <div class="preview-card" id="preview-card" onclick="openFullProjectImage()" title="Click to open full image">
           <div class="preview-mockup" id="preview-mockup">
-            <img class="preview-banner" id="preview-banner" src="" alt="">
+            <div class="img-skeleton hidden" id="preview-skeleton" style="position:absolute;inset:0;border-radius:var(--radius-lg)"></div>
+            <img class="preview-banner img-fade" id="preview-banner" src="" alt="" loading="lazy" decoding="async">
             <div id="preview-placeholder" class="preview-placeholder-wrap">
               <div style="display:flex;flex-direction:column;align-items:center;gap:1rem">
                 <div class="preview-icon">⊞</div>
@@ -564,8 +602,9 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
       <button class="project-viewer-btn" type="button" onclick="closeProjectViewer()">Close ✕</button>
     </div>
   </div>
-  <div class="project-viewer-body">
-    <img id="project-viewer-img" class="project-viewer-img" src="" alt="Full project preview">
+  <div class="project-viewer-body" style="position:relative">
+    <div class="img-skeleton hidden" id="viewer-skeleton" style="position:absolute;inset:0"></div>
+    <img id="project-viewer-img" class="project-viewer-img img-fade" src="" alt="Full project preview" decoding="async">
   </div>
 </div>
 
@@ -591,9 +630,9 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
     <div class="value-card"><div class="value-num">01</div><div class="value-title">Design-first thinking</div><div class="value-desc">Every project starts with understanding the user. I build design systems that are consistent, scalable, and beautiful.</div></div>
     <div class="value-card"><div class="value-num">02</div><div class="value-title">Strong UX instincts</div><div class="value-desc">I think in user flows, not just screens. Good UX means users never have to think twice.</div></div>
     <div class="value-card"><div class="value-num">03</div><div class="value-title">Real product experience</div><div class="value-desc">I've designed and built complete digital products — not just mockups. I understand what it takes to ship.</div></div>
-    <div class="value-card"><div class="value-num">04</div><div class="value-title">Full stack capability</div><div class="value-desc">I speak both design and engineering. Designs are feasible, and code always looks as intended.</div></div>
-    <div class="value-card"><div class="value-num">05</div><div class="value-title">Clean, maintainable code</div><div class="value-desc">Code I write is organized, readable, and built to scale.</div></div>
-    <div class="value-card"><div class="value-num">06</div><div class="value-title">End-to-end delivery</div><div class="value-desc">From wireframe to deployment — one person, complete ownership.</div></div>
+    <div class="value-card"><div class="value-num">04</div><div class="value-title">Detail-obsessed</div><div class="value-desc">Every pixel, spacing, and interaction is considered — nothing feels accidental.</div></div>
+    <div class="value-card"><div class="value-num">05</div><div class="value-title">Consistent design systems</div><div class="value-desc">Reusable components and style guides keep designs consistent as products grow.</div></div>
+    <div class="value-card"><div class="value-num">06</div><div class="value-title">End-to-end delivery</div><div class="value-desc">From research and wireframes to final, polished UI — one person, complete ownership.</div></div>
   </div>
 </section>
 
@@ -620,9 +659,9 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
         </div>
       </div>
       <div>
-        <div class="form-group"><label>Full Name</label><input type="text" id="f-name" placeholder="John Smith"></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="f-email" placeholder="john@example.com"></div>
-        <div class="form-group"><label>Message</label><textarea id="f-msg" placeholder="Tell me about your project..."></textarea></div>
+        <div class="form-group"><label for="f-name">Full Name</label><input type="text" id="f-name" placeholder="John Smith"></div>
+        <div class="form-group"><label for="f-email">Email Address</label><input type="email" id="f-email" placeholder="john@example.com"></div>
+        <div class="form-group"><label for="f-msg">Message</label><textarea id="f-msg" placeholder="Tell me about your project..."></textarea></div>
         <button class="btn-primary" style="width:100%;justify-content:center" onclick="submitForm()">Send Message →</button>
         <div id="form-success" style="display:none;margin-top:1rem;padding:1rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-md);font-size:.875rem;color:#166534;text-align:center">✓ Message sent! I'll get back to you within 24 hours.</div>
       </div>
@@ -631,7 +670,7 @@ footer{border-top:1px solid var(--gray-border);padding:3rem 5%;display:flex;just
 </section>
 
 <footer>
-  <div><div class="footer-name" id="footer-name">Siful Islam Zehan</div><div class="footer-role" id="footer-role">UI/UX Designer & Full Stack Developer</div></div>
+  <div><div class="footer-name" id="footer-name">Siful Islam Zehan</div><div class="footer-role" id="footer-role">UI/UX Designer</div></div>
   <div class="footer-copy">© 2025 Siful Islam Zehan. All rights reserved.</div>
   <div class="footer-socials">
     <a href="#" class="social-link" id="sl-linkedin" title="LinkedIn">in</a>
@@ -672,8 +711,16 @@ async function applySettings() {
 }
 
 async function renderProjects() {
-  allProjects = await window.getFirebaseProjects();
   const list = document.getElementById('projects-list');
+  list.innerHTML = Array.from({length:3}).map(() => `
+    <div class="project-item" style="pointer-events:none">
+      <div class="project-num img-skeleton" style="position:static;display:inline-block;width:28px;height:14px;border-radius:4px"></div>
+      <div class="project-name img-skeleton" style="position:static;display:block;width:60%;height:24px;border-radius:6px;margin:.5rem 0"></div>
+      <div class="project-tagline img-skeleton" style="position:static;display:block;width:40%;height:14px;border-radius:4px"></div>
+    </div>
+  `).join('');
+
+  allProjects = await window.getFirebaseProjects();
 
   if (!allProjects || allProjects.length === 0) {
     list.innerHTML = '<div style="padding:2rem;color:var(--gray-light);font-size:.875rem">No projects yet.</div>';
@@ -709,6 +756,7 @@ function selectProject(idx, silent = false) {
 
   const p = allProjects[idx];
   const bannerImg = document.getElementById('preview-banner');
+  const skeleton = document.getElementById('preview-skeleton');
   const placeholder = document.getElementById('preview-placeholder');
   const previewMockup = document.getElementById('preview-mockup');
   const previewCard = document.getElementById('preview-card');
@@ -717,11 +765,16 @@ function selectProject(idx, silent = false) {
   const fullSource = p.image || p.full || p.banner || '';
 
   if (fullSource) {
+    bannerImg.classList.remove('loaded');
+    skeleton.classList.remove('hidden');
+    bannerImg.onload = () => { bannerImg.classList.add('loaded'); skeleton.classList.add('hidden'); };
+    bannerImg.onerror = () => { skeleton.classList.add('hidden'); bannerImg.style.display = 'none'; };
     bannerImg.src = fullSource;
     bannerImg.style.display = 'block';
     placeholder.style.display = 'none';
     previewCard.classList.add('has-image');
   } else {
+    skeleton.classList.add('hidden');
     bannerImg.style.display = 'none';
     placeholder.style.display = 'flex';
     previewCard.classList.remove('has-image');
@@ -761,10 +814,15 @@ function openFullProjectImage() {
 
   const viewer = document.getElementById('project-viewer');
   const img = document.getElementById('project-viewer-img');
+  const viewerSkeleton = document.getElementById('viewer-skeleton');
   const title = document.getElementById('project-viewer-title');
   const openBtn = document.getElementById('project-viewer-open');
 
   title.textContent = project.name || 'Project Preview';
+  img.classList.remove('loaded');
+  viewerSkeleton.classList.remove('hidden');
+  img.onload = () => { img.classList.add('loaded'); viewerSkeleton.classList.add('hidden'); };
+  img.onerror = () => { viewerSkeleton.classList.add('hidden'); };
   img.src = imageUrl;
   img.alt = project.name || 'Full project preview';
   openBtn.href = imageUrl;
@@ -785,6 +843,23 @@ function closeProjectViewer() {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeProjectViewer();
 });
+
+const navToggle = document.getElementById('nav-toggle');
+const navLinks = document.getElementById('nav-links');
+if (navToggle && navLinks) {
+  navToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.classList.toggle('open', isOpen);
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      navToggle.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
 
 function prevProject() {
   if (!allProjects || !allProjects.length) return;
